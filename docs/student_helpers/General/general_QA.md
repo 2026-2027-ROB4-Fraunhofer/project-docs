@@ -68,9 +68,9 @@ As you wish, but I suppose python is simpler.
 
 ## Where to start learning ROS 2 and Nav2?
 
-- workshop from ROS-Industrial [here]().
+- workshop from ROS-Industrial [here](https://ros-industrial.github.io/ros2_i_training/).
 
-- official ROS 2 tutorial
+- official [ROS 2 documentation](https://docs.ros.org/en/jazzy/index.html)
 
-- Nav2 doc
+- [Nav2 documentation](https://docs.nav2.org/jazzy/)
 
