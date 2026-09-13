@@ -5,9 +5,14 @@ copyright = "Fraunhofer IPA"
 extensions = [
     "myst_parser",
     "sphinx_copybutton",
+    "sphinx_design",
 ]
 source_suffix = {".md": "markdown"}
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+]
 
 html_title = project
 

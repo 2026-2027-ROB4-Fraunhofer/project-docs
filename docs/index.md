@@ -15,4 +15,5 @@ overview
 installation/index
 startup/index
 troubleshooting
+student_helpers/index
 ```

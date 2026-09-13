@@ -5,15 +5,23 @@ separate client.
 
 For a source workspace:
 
+`````{tab-set}
+````{tab-item} Sim
 ```bash
 # Simulation
 ros2 launch curtmini_piper_moveit_config moveit_rviz.launch.py \
   use_sim_time:=true
+```
+````
 
+````{tab-item} Real
+```sh
 # Real hardware
 ros2 launch curtmini_piper_moveit_config moveit_rviz.launch.py \
   use_sim_time:=false
 ```
+````
+`````
 
 For the Docker workspace against an active simulation:
 
