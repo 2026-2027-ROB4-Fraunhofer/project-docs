@@ -16,12 +16,7 @@ git clone git@github.com:2026-2027-ROB4-Fraunhofer/project-docs.git
 
 ## 2. Create a ROS 2 workspace
 
-Now go back to your `ROB4_Fraunhofer` folder:
-```sh
-cd ..
-```
-
-Create a ROS 2 workspace in this folder:
+From the `ROB4_Fraunhofer` folder, create a ROS 2 workspace in this folder:
 ```sh
 mkdir rob4_fraunhofer_ws
 ```
@@ -66,7 +61,7 @@ cd curtmini_piper_containers
 
 Copy the .env.example:
 ```sh
-cp -n .env.example .env
+cp --update=none .env.example .env
 ```
 
 Set `ROS_DISTRO=jazzy` and `RMW=cyclonedds` in `.env`. All container source
