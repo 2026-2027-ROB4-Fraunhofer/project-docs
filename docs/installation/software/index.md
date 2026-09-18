@@ -9,6 +9,11 @@ git clone git@github.com:2026-2027-ROB4-Fraunhofer/project-docs.git
 vcs import . < project-docs/dependencies.repos
 ```
 
+Vous devez avoir installe vcs tools:
+```sh
+sudo apt-get install python3-vcstool
+```
+
 The imported layout is:
 
 ```text

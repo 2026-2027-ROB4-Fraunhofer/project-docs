@@ -9,7 +9,40 @@ With the local workspace built:
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 ```
 
-Start Gazebo:
+
+Gazebo:
+```sh
+xhost +local:docker
+  docker compose \
+  -f compose.yaml \
+  -f compose.cyclonedds.yaml \
+  -f compose.gui.yaml \
+  up gz-sim
+```
+
+Moveit:
+```sh
+    docker compose \
+  -f compose.yaml \
+  -f compose.cyclonedds.yaml \
+  -f compose.gui.yaml \
+  up moveit-rviz-sim
+```
+
+
+Teleop:
+```sh
+   docker compose \
+  -f compose.yaml \
+  -f compose.cyclonedds.yaml \
+  -f compose.gui.yaml \
+  up keyboard-teleop-sim
+```
+
+
+
+### DO not read that
+Start Gazebo
 
 ```sh
 xhost +local:docker
