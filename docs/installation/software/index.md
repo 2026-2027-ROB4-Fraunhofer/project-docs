@@ -1,6 +1,6 @@
 # Software
 
-## Create the workspace
+## Step 1 : Create the workspace
 
 ```bash
 mkdir -p ~/ROB4_Fraunhofer
@@ -50,9 +50,35 @@ ROB4_Fraunhofer/
 
 Choose either the source or Docker installation workflow:
 
+## Step 2 : Install the software
+
+Docker is required to run the Gazebo simulation, RViz, MoveItPy,
+teleoperation, and hardware bringup.
+
+
+If you have Ubuntu 24.04: you could install ROS 2 and the source dependencies on your host if you want to:
+
+- Develop or modify ROS 2 packages
+- Build packages locally
+- Debug source code directly
+
+I would not recommand doing that in the beginning. First get familiar with ROS 2 and use the provided containers. If you find limitation to the containers, don't hesitate to tell me.
+
+
+For your development setup:
+
+- If you’re using Ubuntu 24.04:
+You can install ROS 2 directly on your host and develop your ROS 2 components there. This should be easier than containerizing the application from the start.
+
+I’d still be very happy if you Dockerize the application at a later stage, but I completely understand if that feels like too much effort. You already have plenty on your plate for this project.
+
+- If you don't have Ubuntu 24.04: 
+Then Dockerizing the application is the only option. It’s good practice to do so anyway.
+
+
 ```{toctree}
 :maxdepth: 1
 
-source
 docker
+source
 ```

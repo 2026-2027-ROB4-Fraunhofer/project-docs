@@ -163,7 +163,6 @@ xhost +local:docker
 docker compose \
   -f compose.yaml \
   -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
   -f compose.gui.yaml \
   up gz-sim
 ```
@@ -173,7 +172,6 @@ Start Rviz + Moveit:
 docker compose \
   -f compose.yaml \
   -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
   -f compose.gui.yaml \
   run --rm moveit-rviz-sim
 ```
@@ -186,7 +184,6 @@ Run MoveItPy in another terminal:
 docker compose \
   -f compose.yaml \
   -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
   run --rm moveitpy-sim
 ```
 
