@@ -41,7 +41,7 @@ Teleop:
 
 
 
-### DO not read that
+## Do not read that
 Start Gazebo
 
 ```sh
