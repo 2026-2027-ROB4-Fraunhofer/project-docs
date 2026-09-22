@@ -24,7 +24,7 @@ repositories:
     rob4_fraunhofer_ws/src/curtmini_piper_simulation/neo_gz_worlds:
         type: git
         url: https://github.com/ipa-may/neo_gz_worlds.git
-        version: main
+        version: gz-harmonic
 
     rob4_fraunhofer_ws/src/piper_driver/agx_arm_ros:
         type: git
