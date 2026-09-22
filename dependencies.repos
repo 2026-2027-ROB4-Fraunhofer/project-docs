@@ -17,9 +17,13 @@ repositories:
         type: git
         url: https://github.com/ipa-may/curtmini_piper.git
         version: main
-    rob4_fraunhofer_ws/src/curtmini_piper_gz_sim:
+    rob4_fraunhofer_ws/src/curtmini_piper_simulation/curtmini_piper_gz_sim:
         type: git
         url: https://github.com/ipa-may/curtmini_piper_gz_sim.git
+        version: main
+    rob4_fraunhofer_ws/src/curtmini_piper_simulation/neo_gz_worlds:
+        type: git
+        url: https://github.com/ipa-may/neo_gz_worlds.git
         version: main
 
     rob4_fraunhofer_ws/src/piper_driver/agx_arm_ros:
