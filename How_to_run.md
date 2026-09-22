@@ -4,6 +4,11 @@
 2. Running the real hardware
 3. Removing the container
 
+Run the Compose commands below from `curtmini_piper_containers/`. Set
+`CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in its `.env`; see
+[container ROS distribution](docs/installation/software/docker.md#container-ros-distribution).
+Jazzy is the default, independently of the host's ROS distro.
+
 ## 1. Running the Gz Simulation
 
 ### Terminal 1: Start Gazebo

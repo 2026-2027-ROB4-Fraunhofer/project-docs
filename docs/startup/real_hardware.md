@@ -35,6 +35,11 @@ ros2 launch curtmini_piper_bringup bringup.launch.py \
 
 ## Using docker
 
+Run the Compose commands from `curtmini_piper_containers/` with
+`CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in its `.env`; see
+[container ROS distribution](../installation/software/docker.md#container-ros-distribution).
+Jazzy is the default, independently of the host's ROS distro.
+
 ```sh
 sudo ip link set can0 up type can bitrate 1000000
 ```

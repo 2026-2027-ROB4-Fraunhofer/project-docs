@@ -46,3 +46,35 @@ See the container repository's
 and
 [service reference](https://github.com/ipa-may/curtmini_piper_containers/blob/main/README_compose_service.md)
 for the complete workflow.
+
+### Container ROS distribution
+
+In `curtmini_piper_containers/.env`, select the container distro and middleware:
+
+```dotenv
+CONTAINER_ROS_DISTRO=jazzy
+RMW=cyclonedds
+```
+
+If you have an existing `.env`, rename its `ROS_DISTRO` entry to
+`CONTAINER_ROS_DISTRO`. New configurations can use the repository's updated
+`.env.example`.
+
+`CONTAINER_ROS_DISTRO` defaults to `jazzy` when unset or empty. It controls the
+container image tags, build distro, and distro-specific workspace settings.
+The host's `ROS_DISTRO` does not select the container distro, so a shell with
+ROS 2 Humble sourced still selects Jazzy containers by default.
+
+To select the distro for one command, prefix it with the variable:
+
+```sh
+CONTAINER_ROS_DISTRO=jazzy RMW=cyclonedds docker compose \
+  -f compose.yaml \
+  -f compose.cyclonedds.yaml \
+  -f compose.gui.yaml \
+  up gz-sim
+```
+
+A shell setting of `CONTAINER_ROS_DISTRO` takes precedence over `.env`.
+The build and image-verification helper scripts also use this variable.
+Dockerfiles and ROS inside the containers continue to use `ROS_DISTRO` internally.

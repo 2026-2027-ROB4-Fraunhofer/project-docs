@@ -64,7 +64,12 @@ Copy the .env.example:
 cp --update=none .env.example .env
 ```
 
-Set `ROS_DISTRO=jazzy` and `RMW=cyclonedds` in `.env`. All container source
+Set `CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in `.env`. If you already
+have a `.env` file, rename its `ROS_DISTRO` entry to `CONTAINER_ROS_DISTRO`.
+The container distro defaults to Jazzy independently of the host's `ROS_DISTRO`;
+see [container ROS distribution](docs/installation/software/docker.md#container-ros-distribution).
+
+All container source
 repositories and commit revisions are defined in `curtmini_piper_containers/locks/jazzy/*.repos`,
 including the `ipa-may/curt_mini` fork. The workspace checkouts imported above
 are for local development; Docker builds do not use them or this project's

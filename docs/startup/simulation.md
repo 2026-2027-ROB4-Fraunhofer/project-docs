@@ -10,6 +10,10 @@ cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 ```
 
 
+Set `CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in the container
+repository's `.env`; see [container ROS distribution](../installation/software/docker.md#container-ros-distribution).
+Jazzy is the default, including when the host shell uses ROS 2 Humble.
+
 Gazebo:
 ```sh
 xhost +local:docker
