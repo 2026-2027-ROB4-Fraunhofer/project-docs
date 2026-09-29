@@ -8,6 +8,7 @@ extensions = [
     "sphinx_design",
 ]
 source_suffix = {".md": "markdown"}
+myst_heading_anchors = 3
 exclude_patterns = [
     "_build",
     "Thumbs.db",

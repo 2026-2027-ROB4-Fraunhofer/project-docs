@@ -51,7 +51,7 @@ for the complete workflow.
 
 In `curtmini_piper_containers/.env`, select the container distro and middleware:
 
-```dotenv
+```text
 CONTAINER_ROS_DISTRO=jazzy
 RMW=cyclonedds
 ```
