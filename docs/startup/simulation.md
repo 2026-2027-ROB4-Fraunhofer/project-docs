@@ -1,95 +1,64 @@
 # Simulation
 
-##
-Simulation is maintained in the
-[curtmini_piper_gz_sim repository](https://github.com/ipa-may/curtmini_piper_gz_sim).
+Complete the [Docker setup](../installation/software/docker.md) first. This
+workflow builds application images; it does not require a native ROS workspace
+build or the workspace overlay.
 
-With the local workspace built:
+## Terminal setup
+
+Run this in **each terminal** used below:
 
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-```
-
-Set some environment variables:
-```sh
 export CONTAINER_ROS_DISTRO=jazzy
 export RMW=cyclonedds
+export ROS_DOMAIN_ID=42
 export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
-export SIM_WORLD=curtmini_piper_map
 ```
 
-See [container ROS distribution](../installation/software/docker.md#container-ros-distribution).
-Jazzy is the default, including when the host shell uses ROS 2 Humble or another distro.
+`COMPOSE_FILE` replaces the repeated `-f` arguments. These shell exports apply
+only to that terminal; see the [environment settings](../installation/software/docker.md#container-ros-distribution).
 
-Then run on Terminal #1:
+## Terminal 1: Gazebo and RViz
+
+Allow X11 access once per desktop session, before launching the windows:
+
 ```sh
-docker compose up --build gz-sim moveit-rviz-sim
-```
-
-and on Terminal #2:
-```sh
-docker compose -f compose.yaml -f compose.cyclonedds.yaml \
-  run --rm --build keyboard-teleop-sim
-```
-
-
-## Give the gz sim world:
-
-Start gazebo + rviz
-Empty map:
-```sh
-SIM_WORLD=curtmini_piper docker compose up --build gz-sim moveit-rviz-sim
-```
-
-With furnitures:
-```sh
+xhost +si:localuser:root
 SIM_WORLD=curtmini_piper_map docker compose up --build gz-sim moveit-rviz-sim
 ```
 
-## Some explanations
+The current containers run as root, so the X11 rule names `root`. GUI Compose
+settings already pass `/dev/dri` for GPU access; X11 permission controls access
+to the display.
 
-The COMPOSE_FILE environment allows
-Gazebo:
-```sh
-xhost +local:docker
-  docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  up gz-sim
-```
+`curtmini_piper_map` is the office world. Use `SIM_WORLD=curtmini_piper` for the
+simple ground-plane world. The simulation starts Gazebo, the robot controllers,
+and MoveIt; the separate RViz service displays them.
 
-Moveit:
-```sh
-    docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  up moveit-rviz-sim
-```
+## Terminal 2: Keyboard teleop
 
-
-Teleop:
-```sh
-   docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  up keyboard-teleop-sim
-```
-
-
-## Do not read that
-Start Gazebo
+After the robot has spawned, using the same terminal setup:
 
 ```sh
-xhost +local:docker
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
-  -f compose.gui.yaml \
-  up gz-sim
+docker compose run --rm --build keyboard-teleop-sim
 ```
 
-Start RViz or MoveItPy in separate terminals using the instructions on their
-respective pages.
+Keep this terminal focused: `i` drives forward, `,` backward, `j`/`l` turn, and
+`k` stops. See the [MoveItPy guide](moveitpy.md) for motion examples. RViz is
+already running from terminal 1, so you do not need to start another instance.
+
+## Stop
+
+Press `k` to stop driving, then `Ctrl+C` in the teleop terminal. Press `Ctrl+C`
+in terminal 1 to stop Gazebo and RViz. Alternatively, from a configured terminal:
+
+```sh
+docker compose stop gz-sim moveit-rviz-sim
+```
+
+## Develop with local workspace packages
+
+Follow [local workspace development](../installation/software/docker.md#local-workspace-development)
+to build the mounted source repositories and launch with `compose.workspace.yaml`.
+Keep that overlay in every launch command that should use the shared installation.
