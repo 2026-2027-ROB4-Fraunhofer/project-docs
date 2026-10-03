@@ -51,11 +51,18 @@ RMW=cyclonedds
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
-Then run commands from `curtmini_piper_containers/` without repeating the `-f` options:
+Allow the root-run GUI containers to access the X11 display, then run commands
+from `curtmini_piper_containers/`. You can name the Compose files explicitly:
 
 ```sh
-docker compose up --build gz-sim moveit-rviz-sim
+xhost +si:localuser:root
+docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
+  up --build gz-sim moveit-rviz-sim
 ```
+
+With the `COMPOSE_FILE` value above, you can omit the `-f` options and run
+`docker compose up --build gz-sim moveit-rviz-sim`. Without `compose.gui.yaml`,
+the RViz container has no X11 display and exits with a Qt `xcb` error.
 
 Compose reads `.env` each time you run a command. Previously exported variables
 override the values in `.env`; run `unset RMW COMPOSE_FILE` to use the file's settings.

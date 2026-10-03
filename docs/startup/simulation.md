@@ -13,11 +13,10 @@ cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 export CONTAINER_ROS_DISTRO=jazzy
 export RMW=cyclonedds
 export ROS_DOMAIN_ID=42
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
-`COMPOSE_FILE` replaces the repeated `-f` arguments. These shell exports apply
-only to that terminal; see the [environment settings](../installation/software/docker.md#container-ros-distribution).
+These shell exports apply only to that terminal; see the [environment
+settings](../installation/software/docker.md#container-ros-distribution).
 
 ## Terminal 1: Gazebo and RViz
 
@@ -25,12 +24,16 @@ Allow X11 access once per desktop session, before launching the windows:
 
 ```sh
 xhost +si:localuser:root
-SIM_WORLD=curtmini_piper_map docker compose up --build gz-sim moveit-rviz-sim
+SIM_WORLD=curtmini_piper_map docker compose \
+  -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
+  up --build gz-sim moveit-rviz-sim
 ```
 
 The current containers run as root, so the X11 rule names `root`. GUI Compose
-settings already pass `/dev/dri` for GPU access; X11 permission controls access
-to the display.
+settings pass `DISPLAY`, the X11 socket, and `/dev/dri` to the containers. Without
+`compose.gui.yaml`, RViz cannot connect to the display and exits with a Qt `xcb`
+error. The shorter `docker compose up --build gz-sim moveit-rviz-sim` command
+works only when `COMPOSE_FILE` includes `compose.gui.yaml`.
 
 `curtmini_piper_map` is the office world. Use `SIM_WORLD=curtmini_piper` for the
 simple ground-plane world. The simulation starts Gazebo, the robot controllers,
@@ -41,7 +44,8 @@ and MoveIt; the separate RViz service displays them.
 After the robot has spawned, using the same terminal setup:
 
 ```sh
-docker compose run --rm --build keyboard-teleop-sim
+docker compose -f compose.yaml -f compose.cyclonedds.yaml \
+  run --rm --build keyboard-teleop-sim
 ```
 
 Keep this terminal focused: `i` drives forward, `,` backward, `j`/`l` turn, and
@@ -54,7 +58,8 @@ Press `k` to stop driving, then `Ctrl+C` in the teleop terminal. Press `Ctrl+C`
 in terminal 1 to stop Gazebo and RViz. Alternatively, from a configured terminal:
 
 ```sh
-docker compose stop gz-sim moveit-rviz-sim
+docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
+  stop gz-sim moveit-rviz-sim
 ```
 
 ## Develop with local workspace packages
