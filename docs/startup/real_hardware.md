@@ -71,8 +71,6 @@ docker compose \
   down piper-bringup moveit-rviz-hardware
 ```
 
-### Base only
-
 ### Arm + Base
 Start both arm + base (use `real-bringup`)
 ```sh
@@ -91,8 +89,6 @@ Complete the [local workspace setup](../installation/software/docker.md#local-wo
 first, including building the development image. Keep the workspace overlay in
 both build and launch commands below.
 
-
-Modify the joint limits.
 
 Build the workspace
 ```sh
