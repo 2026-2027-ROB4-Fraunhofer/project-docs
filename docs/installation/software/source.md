@@ -33,7 +33,7 @@ cd ~/ROB4_Fraunhofer/rob4_fraunhofer_ws
 vcs import --recursive --skip-existing src \
   < src/curt_mini/ipa_ros2_control/ipa_ros2_control.repos
 vcs import --recursive --skip-existing src \
-  < src/curt_mini/curt_mini/curt_mini.repos
+  < src/curt_mini/curt_mini_bringup/curt_mini.repos
 ```
 
 Install the Piper Python SDK using
