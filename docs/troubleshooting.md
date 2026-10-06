@@ -21,11 +21,10 @@ python3 -c "import pyAgxArm; print(pyAgxArm.__file__)"
 
 ## Mount and TCP offsets
 
-Adjust the arm mount without editing the Xacro:
-
-```bash
-ros2 launch curtmini_piper_bringup bringup.launch.py \
-  arm_mount_xyz:="0 0 0.20" arm_mount_rpy:="0 0 0"
-```
-
-Pass matching mount and TCP offsets to bringup, RViz, and motion clients.
+Edit `curtmini_piper_description/config/geometry.yaml` to set the arm, TCP,
+and lidar mounts. Containers bind-mount this config; restart bringup, RViz,
+and motion clients after an edit. A native install without `--symlink-install`
+also needs the description package rebuilt to update its installed copy.
+The standard `gz-sim` image pins an older robot description that does not
+read this YAML; see the
+[simulator image caveat](installation/software/docker.md#robot-geometry-in-the-simulator-image).

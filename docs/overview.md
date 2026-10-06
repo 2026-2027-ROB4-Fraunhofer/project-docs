@@ -15,6 +15,7 @@ The main repositories are:
 - [Containers](https://github.com/ipa-may/curtmini_piper_containers): Compose
   includes, shared middleware configuration, and workspace tooling.
 
-The combined model prefixes Piper links and joints with `piper_`. The mount and
-TCP offsets can be supplied as launch parameters without editing the robot
-description.
+The combined model prefixes Piper links and joints with `piper_`. Set the arm,
+TCP, and lidar mounts in `curtmini_piper_description/config/geometry.yaml`.
+The simulation's starting base pose and six arm joint positions are separate
+settings in `curtmini_piper_gz_sim/config/initial_state.yaml`.

@@ -111,6 +111,22 @@ It does not automatically use those neighbouring checkouts. `neo_gz_worlds` uses
 the `gz-harmonic` branch for the office assets. The project-level
 `project-docs/dependencies.repos` creates the host workspace layout.
 
+### Robot geometry in the simulator image
+
+The simulator's current dependency manifest pins `curtmini_piper` to revision
+`fa5bfdce328d3a69bdc171eec0e19d9f27367bcc`, before the robot description
+began reading `curtmini_piper_description/config/geometry.yaml`. The standard
+`gz-sim` image therefore uses the arm, TCP, and lidar mount defaults in that
+revision's Xacros, even though the source `config` directory is bind-mounted.
+Changing the local geometry YAML alone does not change the simulated model in
+that image. The [local workspace workflow](#local-workspace-development) builds
+the neighbouring robot checkout and uses its YAML-aware description.
+
+The simulation's starting base pose and six arm joint positions are configured
+in `curtmini_piper_gz_sim/config/initial_state.yaml`. The `gz-sim` service
+bind-mounts that file's directory, so a service restart applies YAML edits
+without rebuilding the image. See the [simulation guide](../../startup/simulation.md#starting-pose-and-joint-positions).
+
 Rebuild an application image after changing its local code. `--build` may reuse
 cached Git downloads even when a remote branch advances. To refresh simulation
 dependencies without changing the manifest:
