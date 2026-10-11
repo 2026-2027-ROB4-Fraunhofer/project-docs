@@ -5,6 +5,7 @@
 
 real_hardware
 simulation
+navigation
 rviz
 moveitpy
 ```

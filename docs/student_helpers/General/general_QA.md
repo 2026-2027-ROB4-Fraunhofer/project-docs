@@ -54,7 +54,7 @@ Each distro has its own supported software versions and lifetime, the list is [h
 
 ROS 2 rolling is the continuously updated development version of ROS 2. It gets the newest features first, but can change often and is less stable than fixed releases.
 
-For this project we will use **ROS 2 Jazzy**. However the robot is on ROS 2 kilted, so we should verify that we can downmigrate to Jazzy.
+This project uses **ROS 2 Jazzy** for its containers and supported source workflow.
 
 ## Do I need to install ROS 2 and how to?
 

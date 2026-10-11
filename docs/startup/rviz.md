@@ -37,3 +37,8 @@ ros2 launch curtmini_piper_moveit_config moveit_rviz.launch.py use_sim_time:=tru
 ```
 
 Use `use_sim_time:=false` for real hardware.
+
+Simulation containers pass `SIM_USE_HOKUYO` to the client robot model. For a
+native launch, set `use_hokuyo:=false` (RViz launch argument) or
+`-p use_hokuyo:=false` (MoveItPy parameter) when the simulator lidar is disabled.
+The native defaults include the lidar for simulation and omit it for hardware.

@@ -25,6 +25,6 @@ Edit `curtmini_piper_description/config/geometry.yaml` to set the arm, TCP,
 and lidar mounts. Containers bind-mount this config; restart bringup, RViz,
 and motion clients after an edit. A native install without `--symlink-install`
 also needs the description package rebuilt to update its installed copy.
-The standard `gz-sim` image pins an older robot description that does not
+Older cached `gz-sim` images may contain a robot description that does not
 read this YAML; see the
 [simulator image caveat](installation/software/docker.md#robot-geometry-in-the-simulator-image).

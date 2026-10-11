@@ -40,7 +40,7 @@ cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 
 Set `CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in `.env`. The host's
 `ROS_DISTRO` does not select the container distro. For an existing configuration,
-check its source paths against `.env.example`, especially:
+check any source-path overrides against the default layout, especially:
 
 ```dotenv
 CURTMINI_PIPER_GZ_SIM_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_simulation/curtmini_piper_gz_sim

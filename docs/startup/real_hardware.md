@@ -21,8 +21,9 @@ ros2 launch curtmini_piper_bringup bringup.launch.py start_base:=false
 ```
 
 By default, bringup starts the base hardware, joystick, IMU, Piper arm,
-MoveIt, and RViz. The command interface is enabled only while the trajectory
-action is active.
+MoveIt, and RViz. By default, `control_enabled=true` lets the Piper driver
+accept commands continuously. With `control_enabled:=false`, bringup starts
+the trajectory-status gate, which enables commands during an active trajectory.
 
 For hardware-free MoveIt and RViz testing:
 
@@ -83,38 +84,23 @@ docker compose \
 
 
 
-## Using workspace packages (advanced)
+## Building local hardware changes
 
-Complete the [local workspace setup](../installation/software/docker.md#local-workspace-development)
-first, including building the development image. Keep the workspace overlay in
-both build and launch commands below.
+The workspace builder is for simulation, navigation and MoveIt examples. It does not build
+hardware bringup or drivers, and `compose.workspace.yaml` does not override
+hardware services. After editing the robot repository, rebuild its dedicated
+hardware and RViz images:
 
-
-Build the workspace
 ```sh
 docker compose \
   -f compose.yaml \
   -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
-  run --rm workspace-builder
-```
-
-
-Run the container using local workspace packages:
-```sh
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.workspace.yaml \
   -f compose.gui.yaml \
-  up --force-recreate piper-bringup moveit-rviz-hardware
+  build piper-bringup moveit-rviz-hardware
 ```
 
-
-```sh
-CONTROL_ENABLED=true FAST_MODE=true docker compose   -f compose.yaml   -f compose.cyclonedds.yaml   -f compose.workspace.yaml   -f compose.gui.yaml down piper-bringup moveit-rviz-hardware
-
-```
+Then use the hardware startup commands above. For full arm and base bringup,
+use `real-bringup` in place of `piper-bringup`.
 
 
 ## Infos
@@ -135,11 +121,12 @@ This is the thing that talks to the robot over CAN.
 
 ### About `control_enabled`
 
-if control_enabled = false:
-then the real Piper driver ignores commands.
+The driver accepts commands while its control gate is enabled. The default
+launch setting `control_enabled=true` leaves it enabled continuously.
 
-If control_enabled = true: 
-then the real Piper driver accepts commands.
+With `control_enabled:=false`, the driver starts disabled and bringup launches
+`piper_control_gate`. That node enables the driver during an active trajectory
+and disables it afterward; the launch setting is not a permanent command lock.
 
 
 
