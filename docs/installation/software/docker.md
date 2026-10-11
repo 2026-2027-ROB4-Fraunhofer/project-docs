@@ -33,7 +33,7 @@ need to run `source .env` or repeat shell exports in every terminal.
 
 The example selects local simulation development with GUI support:
 
-```dotenv
+```sh
 CONTAINER_ROS_DISTRO=jazzy
 RMW=cyclonedds
 ROS_DOMAIN_ID=42
@@ -201,7 +201,7 @@ mounting the shared installation. No host ROS build is required.
 
 In `curtmini_piper_containers/.env`, use the local-workspace file selection:
 
-```dotenv
+```sh
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
 ```
 
