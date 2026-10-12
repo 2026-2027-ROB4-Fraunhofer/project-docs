@@ -4,19 +4,34 @@ Complete the [Docker setup](../installation/software/docker.md) first. This
 workflow builds application images; it does not require a native ROS workspace
 build or the workspace overlay.
 
-## Terminal setup
+## Configure once
 
-Run this in **each terminal** used below:
+Create `curtmini_piper_containers/.env` as described in the
+[Docker setup](../installation/software/docker.md#configure-once-with-env).
+For this regular-image workflow, edit these values in that file:
+
+```ini
+CONTAINER_ROS_DISTRO=jazzy
+RMW=cyclonedds
+ROS_DOMAIN_ID=42
+SIM_WORLD=curtmini_piper_map
+SIM_USE_HOKUYO=true
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
+```
+
+The template includes `compose.workspace.yaml` by default. If you keep it,
+follow [local workspace development](../installation/software/docker.md#local-workspace-development)
+to build the workspace before starting simulation.
+
+In **each terminal**, change to the directory containing `.env`:
 
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-export CONTAINER_ROS_DISTRO=jazzy
-export RMW=cyclonedds
-export ROS_DOMAIN_ID=42
 ```
 
-These shell exports apply only to that terminal; see the [environment
-settings](../installation/software/docker.md#container-ros-distribution).
+Compose reads the file automatically. No `source .env`, repeated exports, or
+`-f` options are needed. If you previously exported settings, see
+[temporary overrides and precedence](../installation/software/docker.md#temporary-overrides-and-precedence).
 
 ## Terminal 1: Gazebo and RViz
 
@@ -24,20 +39,17 @@ Allow X11 access once per desktop session, before launching the windows:
 
 ```sh
 xhost +si:localuser:root
-SIM_WORLD=curtmini_piper_map docker compose \
-  -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
-  up --build gz-sim moveit-rviz-sim
+docker compose up --build gz-sim moveit-rviz-sim
 ```
 
 The current containers run as root, so the X11 rule names `root`. GUI Compose
 settings pass `DISPLAY`, the X11 socket, and `/dev/dri` to the containers. Without
 `compose.gui.yaml`, RViz cannot connect to the display and exits with a Qt `xcb`
-error. The shorter `docker compose up --build gz-sim moveit-rviz-sim` command
-works only when `COMPOSE_FILE` includes `compose.gui.yaml`.
+error. The `.env` configuration above already includes the GUI file.
 
 `curtmini_piper_map` is the office world. Use `SIM_WORLD=curtmini_piper` for the
-simple ground-plane world. The simulation starts Gazebo, the robot controllers,
-and MoveIt; the separate RViz service displays them.
+simple ground-plane world, either in `.env` or before a command. The simulation
+starts Gazebo, the robot controllers, and MoveIt; the separate RViz service displays them.
 
 To load a world from `neo_gz_worlds`, use its name without a path, for example
 `SIM_WORLD=neo_workshop` in the same command. Other choices include
@@ -75,8 +87,8 @@ One spawner activates `joint_state_broadcaster`, `base_controller`, and
 infrastructure repository:
 
 ```sh
-docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
-  exec gz-sim ros2 control list_controllers
+docker compose exec gz-sim /opt/container/ros_entrypoint.sh \
+  ros2 control list_controllers
 ```
 
 All three should be `active`. If the broadcaster is loaded but `inactive`,
@@ -91,8 +103,7 @@ states from the broadcaster.
 After the robot has spawned, using the same terminal setup:
 
 ```sh
-docker compose -f compose.yaml -f compose.cyclonedds.yaml \
-  run --rm --build keyboard-teleop-sim
+docker compose run --rm --build keyboard-teleop-sim
 ```
 
 Keep this terminal focused: `i` drives forward, `,` backward, `j`/`l` turn, and
@@ -105,12 +116,11 @@ Press `k` to stop driving, then `Ctrl+C` in the teleop terminal. Press `Ctrl+C`
 in terminal 1 to stop Gazebo and RViz. Alternatively, from a configured terminal:
 
 ```sh
-docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
-  stop gz-sim moveit-rviz-sim
+docker compose stop gz-sim moveit-rviz-sim
 ```
 
 ## Develop with local workspace packages
 
 Follow [local workspace development](../installation/software/docker.md#local-workspace-development)
 to build the mounted source repositories and launch with `compose.workspace.yaml`.
-Keep that overlay in every launch command that should use the shared installation.
+Keep that file in the `.env` file’s `COMPOSE_FILE` value while using the shared installation.

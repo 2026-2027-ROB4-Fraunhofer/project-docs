@@ -34,52 +34,63 @@ ros2 launch curtmini_piper_bringup bringup.launch.py \
 
 
 
-## Using docker
+## Using Docker
 
-Run the Compose commands from `curtmini_piper_containers/` with
-`CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in its `.env`; see
-[container ROS distribution](../installation/software/docker.md#container-ros-distribution).
-Jazzy is the default, independently of the host's ROS distro. For RViz, allow
-X11 access once per desktop session with `xhost +si:localuser:root`; the current
-containers run as root.
+Create `curtmini_piper_containers/.env` using the
+[Docker setup](../installation/software/docker.md#configure-once-with-env).
+For hardware with CycloneDDS and RViz, put these settings in the file:
+
+```ini
+CONTAINER_ROS_DISTRO=jazzy
+RMW=cyclonedds
+ROS_DOMAIN_ID=42
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
+```
+
+Compose reads `.env` automatically. In each terminal, run commands from
+`curtmini_piper_containers/`; no repeated `-f` options or exports are needed.
+If earlier shell exports override your file, follow the
+[precedence instructions](../installation/software/docker.md#temporary-overrides-and-precedence).
+See the [service guide](services.md) for the difference between bringup and RViz.
+
+```sh
+cd ~/ROB4_Fraunhofer/curtmini_piper_containers
+xhost +si:localuser:root
+```
+
+Allow X11 access once per desktop session; the GUI containers run as root.
+Activate the CAN interface on the host before starting hardware:
 
 ```sh
 sudo ip link set can0 up type can bitrate 1000000
 ```
 
 Verify:
+
 ```sh
 ip -details -statistics link show can0
 ```
 
 ### Arm only
 
-Start only the arm (use `piper-bringup`)
+Start only the arm (use `piper-bringup`):
+
 ```sh
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  up piper-bringup moveit-rviz-hardware
+docker compose up --build piper-bringup moveit-rviz-hardware
 ```
 
-Stop it (or down)
+Stop these services from another terminal:
+
 ```sh
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  down piper-bringup moveit-rviz-hardware
+docker compose stop piper-bringup moveit-rviz-hardware
 ```
 
 ### Arm + Base
-Start both arm + base (use `real-bringup`)
+
+Start both arm and base (use `real-bringup`):
+
 ```sh
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  up real-bringup moveit-rviz-hardware
+docker compose up --build real-bringup moveit-rviz-hardware
 ```
 
 
@@ -92,11 +103,7 @@ hardware services. After editing the robot repository, rebuild its dedicated
 hardware and RViz images:
 
 ```sh
-docker compose \
-  -f compose.yaml \
-  -f compose.cyclonedds.yaml \
-  -f compose.gui.yaml \
-  build piper-bringup moveit-rviz-hardware
+docker compose build piper-bringup moveit-rviz-hardware
 ```
 
 Then use the hardware startup commands above. For full arm and base bringup,

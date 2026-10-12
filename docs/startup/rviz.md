@@ -6,27 +6,22 @@ MoveIt, joint states, transforms, and the planning scene. The
 
 ## Docker
 
-To start RViz separately, run from the infrastructure repository:
+Use the same `curtmini_piper_containers/.env` as the backend; see
+[configure once with `.env`](../installation/software/docker.md#configure-once-with-env).
+Keep `compose.gui.yaml` in `COMPOSE_FILE`. For local simulation, also keep
+`compose.workspace.yaml` selected and build the workspace first.
+Compose reads the file for every command, so no per-terminal exports are needed.
 
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-export CONTAINER_ROS_DISTRO=jazzy
-export RMW=cyclonedds
-export ROS_DOMAIN_ID=42
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 xhost +si:localuser:root
 docker compose run --rm --build moveit-rviz-sim
 ```
 
 Use `moveit-rviz-hardware` for an active real robot. Match the backend's distro,
-middleware, ROS domain, and mount/TCP settings.
-
-For a previously built [local workspace](../installation/software/docker.md#local-workspace-development),
-select its overlay before running the RViz command:
-
-```sh
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
-```
+middleware, ROS domain, and mount/TCP settings. This service displays MoveIt;
+use `nav2-rviz-sim` for the [navigation view](navigation.md).
+See the [service guide](services.md) for the available clients.
 
 ## Native source workspace
 

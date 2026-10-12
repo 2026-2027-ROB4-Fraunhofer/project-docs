@@ -24,22 +24,29 @@ needed; the initial setup does not need them.
 
 ## 1. Build
 
-Run these commands from `~/ROB4_Fraunhofer/curtmini_piper_containers`.
-Use this same environment in each terminal:
+Create `curtmini_piper_containers/.env` using the
+[Docker setup](../installation/software/docker.md#configure-once-with-env).
+Edit these values in the file for local simulation and mapping:
 
-```bash
-export RMW=cyclonedds
-export ROS_DOMAIN_ID=42
-export SIM_WORLD=curtmini_piper_map
-export SIM_USE_HOKUYO=true
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
+```ini
+CONTAINER_ROS_DISTRO=jazzy
+RMW=cyclonedds
+ROS_DOMAIN_ID=42
+SIM_WORLD=curtmini_piper_map
+SIM_USE_HOKUYO=true
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
 ```
 
-These are the existing Compose files. There is no navigation overlay.
-The workspace builder includes navigation, simulation and MoveIt; it does not
-build hardware bringup.
+Compose reads `.env` automatically; you do not need exports or `-f` options
+in each terminal. These are the existing Compose files. The workspace builder
+includes navigation, simulation and MoveIt; it does not build hardware bringup.
+See the [service guide](services.md) for the role of each container.
+
+Run the following from the container repository. Use this directory in every
+terminal for the rest of the guide:
 
 ```bash
+cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 docker compose build workspace-builder
 docker compose run --rm workspace-builder
 xhost +si:localuser:root

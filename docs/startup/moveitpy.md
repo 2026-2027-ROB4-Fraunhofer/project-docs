@@ -5,14 +5,13 @@ The example plans without executing by default.
 
 ## Docker
 
-Run from the infrastructure repository, matching the backend's settings:
+Use the same `curtmini_piper_containers/.env` as the backend; see
+[configure once with `.env`](../installation/software/docker.md#configure-once-with-env).
+Keep `compose.workspace.yaml` selected when using a previously built local
+simulation workspace. Compose reads `.env` automatically in every terminal.
 
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-export CONTAINER_ROS_DISTRO=jazzy
-export RMW=cyclonedds
-export ROS_DOMAIN_ID=42
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml
 MOVEIT_PLAN_ONLY=true docker compose run --rm --build moveitpy-sim
 ```
 
@@ -22,15 +21,10 @@ To plan and execute in simulation:
 MOVEIT_PLAN_ONLY=false docker compose run --rm --build moveitpy-sim
 ```
 
+The value before the command overrides `.env` for that invocation only. To
+keep a preference, set `MOVEIT_PLAN_ONLY` in `.env` instead.
 Use `moveitpy-hardware` for an active real robot. `MOVEIT_PLAN_ONLY=false` enables
-execution there too.
-
-For a previously built [local workspace](../installation/software/docker.md#local-workspace-development),
-select its overlay before running the command:
-
-```sh
-export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml
-```
+execution there too. See the [service guide](services.md) for related tools.
 
 ## Native source workspace
 

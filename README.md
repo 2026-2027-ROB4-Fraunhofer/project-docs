@@ -38,14 +38,28 @@ cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 [ -f .env ] || cp .env.example .env
 ```
 
-Set `CONTAINER_ROS_DISTRO=jazzy` and `RMW=cyclonedds` in `.env`. The host's
-`ROS_DISTRO` does not select the container distro. For an existing configuration,
-check any source-path overrides against the default layout, especially:
+Docker Compose automatically reads `.env` when you run commands from this
+directory. Edit it once; no `source .env`, repeated exports or `-f` options are
+needed. The template selects local simulation development:
 
-```sh
-CURTMINI_PIPER_GZ_SIM_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_simulation/curtmini_piper_gz_sim
-NEO_GZ_WORLDS_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_simulation/neo_gz_worlds
+```ini
+CONTAINER_ROS_DISTRO=jazzy
+RMW=cyclonedds
+ROS_DOMAIN_ID=42
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
 ```
+
+Build `workspace-builder` before using local simulation services. For regular
+application images or hardware, you can set the file list to:
+
+```ini
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
+```
+
+The host's `ROS_DISTRO` does not select the container distro. Previously exported
+shell variables take precedence over `.env`. See the
+[Docker configuration guide](docs/installation/software/docker.md#configure-once-with-env)
+for workflow selection, precedence and alternate checkout paths.
 
 The infrastructure includes the Compose files in `curtmini_piper/docker/` and
 `curtmini_piper_gz_sim/docker/`. Each application repository owns its Dockerfile,
@@ -55,6 +69,8 @@ local code and clone its upstream dependencies from GitHub. See
 
 ## 3. Run or develop
 
+- [Which service should I use?](docs/startup/services.md)
+- [Mapping and Nav2 goal navigation](docs/startup/navigation.md)
 - [Gazebo office world, RViz, and keyboard teleop](docs/startup/simulation.md)
 - [Real hardware](docs/startup/real_hardware.md)
 - [Standalone RViz](docs/startup/rviz.md) and [MoveItPy](docs/startup/moveitpy.md)
