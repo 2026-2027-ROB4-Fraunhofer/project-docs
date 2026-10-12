@@ -1,0 +1,25 @@
+/* Keep the service tables inside the documentation page and honor their widths. */
+.rst-content table.service-reference,
+.rst-content table.command-reference {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.rst-content table.service-reference th,
+.rst-content table.service-reference td,
+.rst-content table.command-reference th,
+.rst-content table.command-reference td {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.rst-content table.service-reference td:first-child code {
+  white-space: nowrap;
+}
+
+@media (max-width: 800px) {
+  .rst-content table.service-reference td:first-child code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

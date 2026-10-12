@@ -16,6 +16,8 @@ exclude_patterns = [
 ]
 
 html_title = project
+html_static_path = ["_static"]
+html_css_files = ["services.css"]
 
 # html_theme = "furo"
 # html_theme_options = {
