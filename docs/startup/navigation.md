@@ -26,7 +26,9 @@ needed; the initial setup does not need them.
 
 Create `curtmini_piper_containers/.env` using the
 [Docker setup](../installation/software/docker.md#configure-once-with-env).
-Edit these values in the file for local simulation and mapping:
+Edit these values in the **actual `.env` file** for local simulation and mapping.
+The copied `.env.example` has `SIM_WORLD=curtmini_piper`, which is a mostly empty
+ground-plane world. Mapping needs the office world `curtmini_piper_map`:
 
 ```ini
 CONTAINER_ROS_DISTRO=jazzy
@@ -58,17 +60,28 @@ dependencies change. Build and install folders remain in Docker volumes.
 
 ## 2. Make a map
 
-Start Gazebo, SLAM Toolbox and the navigation view:
+Start Gazebo in the office world, SLAM Toolbox and the navigation view. The
+`SIM_WORLD` prefix selects the office world even if `.env` still has the simple
+world. `--force-recreate` replaces an already running Gazebo container that
+may have loaded that simple world:
 
 ```bash
-docker compose up -d gz-sim mapping-sim nav2-rviz-sim
+SIM_WORLD=curtmini_piper_map docker compose up -d --force-recreate \
+  gz-sim mapping-sim nav2-rviz-sim
 docker compose logs -f mapping-sim
 ```
 
 Stop following the logs with Ctrl+C. This leaves the services running.
+Gazebo should show office walls and furniture. The occupancy map in RViz starts
+blank and fills in as you drive and SLAM receives lidar scans. If Gazebo itself
+still shows only a ground plane, check that the new `gz-sim` container started
+with the office world before continuing.
 In RViz, the laser points should follow walls and furniture. If most points
 land on the robot itself, correct the lidar mounting before mapping. Its
 position is in `curtmini_piper_description/config/geometry.yaml`.
+Changing only the lidar mount pose normally requires a TF/geometry update, not
+new Nav2 parameters, while `/scan` and `hokuyo_link` keep their names. Check
+an existing map again if the new height or tilt changes what the scan sees.
 
 Drive slowly around the area with keyboard teleoperation:
 
@@ -91,6 +104,13 @@ your host. `/maps` inside the container is a bind mount of that directory.
 The files may be owned by root because the containers run as root.
 The YAML records the image filename, map resolution and map origin. Keep both
 files together.
+
+It utilizes the nav2 map server:
+```sh
+ros2 run nav2_map_server map_saver_cli -f /pathto/<map-name>
+```
+
+You can therefore decide the map name you want to save.
 
 ## 3. Navigate on the saved map
 
@@ -176,6 +196,9 @@ This is a 2D lidar setup and does not provide full 3D arm clearance checking.
 
 ## Troubleshooting
 
+- **Gazebo shows only a ground plane:** `curtmini_piper` is the simple world.
+  Set `SIM_WORLD=curtmini_piper_map` in the actual `.env` file, then rerun the
+  mapping startup command above. The one-command prefix also selects it.
 - **Map does not exist:** save a map first and check `maps/map.yaml`, or set
   `NAV2_MAP` to the saved YAML filename.
 - **RViz has no `map` frame during localization:** provide a 2D Pose Estimate.

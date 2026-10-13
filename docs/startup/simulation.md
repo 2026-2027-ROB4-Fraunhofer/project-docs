@@ -16,6 +16,7 @@ RMW=cyclonedds
 ROS_DOMAIN_ID=42
 SIM_WORLD=curtmini_piper_map
 SIM_USE_HOKUYO=true
+SIM_USE_CAMERAS=true
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
@@ -50,12 +51,15 @@ error. The `.env` configuration above already includes the GUI file.
 `curtmini_piper_map` is the office world. Use `SIM_WORLD=curtmini_piper` for the
 simple ground-plane world, either in `.env` or before a command. The simulation
 starts Gazebo, the robot controllers, and MoveIt; the separate RViz service displays them.
+The two simulated cameras are enabled by default. RViz includes their color
+and depth views when the simulator image contains the camera implementation;
+see [Cameras](cameras.md) for topics and mount transforms.
 
 To load a world from `neo_gz_worlds`, use its name without a path, for example
 `SIM_WORLD=neo_workshop` in the same command. Other choices include
 `neo_office_empty`, `neo_workshop_2`, and `office_harmonic_02`. The Neo world
 files do not load the sensor systems used by the simulator's own worlds, so
-lidar and IMU data may be unavailable in them.
+lidar, camera, and IMU data may be unavailable in them.
 
 ## Starting pose and joint positions
 
@@ -63,8 +67,9 @@ Edit `curtmini_piper_gz_sim/config/initial_state.yaml` to set the starting
 `base.x`, `base.y`, and `base.z` in metres, `base.orientation` as a rotation
 around Z in radians, and all six `arm.piper_joint*` positions in radians. The
 launch checks those joint positions against the Piper limits. The `gz-sim`
-service bind-mounts the source `config` directory, so restart the service after
-editing the YAML; an image rebuild is not needed for this setting.
+service bind-mounts this YAML file, so restart the service after editing it;
+an image rebuild is not needed for this setting. Bridge and controller YAML
+files come from the upstream simulator in regular images.
 
 For a native ROS workspace launch, point to the source YAML to apply edits
 without rebuilding the package. Run this from the simulator repository root:
@@ -75,10 +80,10 @@ ros2 launch curtmini_piper_gz_sim simulation.launch.py \
 ```
 
 The launch uses its installed copy of `initial_state.yaml` when no path is
-provided. Arm, TCP, and lidar mounts are configured separately in
-`curtmini_piper_description/config/geometry.yaml`; see the
-[Docker source caveat](../installation/software/docker.md#robot-geometry-in-the-simulator-image)
-before changing them in the standard simulator image.
+provided. Arm, TCP, lidar, and simulated camera mounts are configured
+separately in `curtmini_piper_description/config/geometry.yaml`; see
+[robot geometry in the simulator image](../installation/software/docker.md#robot-geometry-in-the-simulator-image)
+for when to restart or rebuild.
 
 ## Controller and MoveIt checks
 

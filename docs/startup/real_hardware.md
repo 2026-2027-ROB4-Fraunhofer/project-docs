@@ -93,21 +93,38 @@ Start both arm and base (use `real-bringup`):
 docker compose up --build real-bringup moveit-rviz-hardware
 ```
 
+### Two D435i cameras
+
+The `realsense-base` and `realsense-tool` services start the two cameras by
+serial number and publish their mount TFs. Measure the real mounts in
+`curtmini_piper_sensors/config/camera_mounts.yaml`, then set
+`BASE_CAMERA_SERIAL` and `TOOL_CAMERA_SERIAL` in `.env`. To start them with the
+complete robot and RViz:
+
+```sh
+docker compose up --build real-bringup realsense-base realsense-tool moveit-rviz-hardware
+```
+
+See [Cameras](cameras.md) for the expected topics, native launch commands,
+and the difference between simulated and physical mount configuration.
 
 
-## Building local hardware changes
+
+## Updating hardware images
 
 The workspace builder is for simulation, navigation and MoveIt examples. It does not build
 hardware bringup or drivers, and `compose.workspace.yaml` does not override
-hardware services. After editing the robot repository, rebuild its dedicated
-hardware and RViz images:
+hardware services. Regular hardware images build from upstream
+`curtmini_piper/main`. After reviewed changes reach that branch, refresh the
+dedicated hardware and RViz images:
 
 ```sh
-docker compose build piper-bringup moveit-rviz-hardware
+docker compose build --no-cache piper-bringup moveit-rviz-hardware
 ```
 
 Then use the hardware startup commands above. For full arm and base bringup,
-use `real-bringup` in place of `piper-bringup`.
+use `real-bringup` in place of `piper-bringup`. For local hardware code changes,
+use a [native source workspace](../installation/software/source.md).
 
 
 ## Infos

@@ -3,6 +3,7 @@
 Complete the [workspace setup](README.md) first. The maintained launch instructions are:
 
 - [Simulation: Gazebo, RViz, keyboard control, and stopping](docs/startup/simulation.md)
+- [Two cameras: simulation, hardware, mounts, and RViz](docs/startup/cameras.md)
 - [Real hardware](docs/startup/real_hardware.md)
 - [Standalone RViz](docs/startup/rviz.md)
 - [MoveItPy](docs/startup/moveitpy.md)

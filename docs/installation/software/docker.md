@@ -39,11 +39,15 @@ RMW=cyclonedds
 ROS_DOMAIN_ID=42
 SIM_WORLD=curtmini_piper_map
 SIM_USE_HOKUYO=true
+SIM_USE_CAMERAS=true
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
 ```
 
 The office world above is useful for navigation; the template initially selects
-the simpler `curtmini_piper` world. `COMPOSE_FILE` lists the files to combine,
+the simpler `curtmini_piper` world. To make a useful map, change the **actual**
+`.env` file to `SIM_WORLD=curtmini_piper_map`, or use the explicit world override
+in the [navigation guide](../../startup/navigation.md#2-make-a-map).
+`COMPOSE_FILE` lists the files to combine,
 in order, separated by colons on Linux. Choose one active `COMPOSE_FILE` line:
 
 | Workflow | Value of `COMPOSE_FILE` in `.env` |
@@ -85,7 +89,7 @@ Shell variables override matching `.env` values. If an earlier terminal setup
 exported these settings, clear those exports to use `.env` again:
 
 ```sh
-unset CONTAINER_ROS_DISTRO RMW ROS_DOMAIN_ID SIM_WORLD SIM_USE_HOKUYO COMPOSE_FILE
+unset CONTAINER_ROS_DISTRO RMW ROS_DOMAIN_ID SIM_WORLD SIM_USE_HOKUYO SIM_USE_CAMERAS COMPOSE_FILE
 ```
 
 To change a setting for one command, put it before the command:
@@ -130,11 +134,11 @@ Including a file does not start every service listed in it. See
 
 | Location | Maintains |
 | --- | --- |
-| `curtmini_piper/docker/` | One Dockerfile with `hardware`, `moveit-rviz`, `moveitpy`, `teleop`, and `navigation` targets; package lists and Compose services |
+| `curtmini_piper/docker/` | One Dockerfile with `hardware`, `moveit-rviz`, `moveitpy`, `teleop`, `navigation`, and `sensors` targets; package lists and Compose services |
 | `curtmini_piper_gz_sim/docker/` | Gazebo Dockerfile, package lists, simulation service, and GUI settings |
 | `curtmini_piper_containers/` | Compose includes, middleware configuration, shared startup helpers, workspace builder, and Zenoh router |
 
-The five robot targets share a ROS base. Hardware, RViz, and MoveItPy also share
+The six robot targets share a ROS base. Hardware, RViz, and MoveItPy also share
 MoveIt dependencies and a common robot build stage. Compose selects the targets;
 the usual service names and launch commands remain the same.
 
@@ -151,36 +155,49 @@ The robot and simulator checkouts are required to load their included Compose
 files. If the infrastructure checkout is elsewhere, set `CONTAINER_INFRA_SOURCE`
 to its absolute path so application builds can find the shared scripts.
 
-## Local code and GitHub dependencies
+## Upstream code and local settings
 
-An application image build copies its owning repository from the local checkout.
-Its `vcs import` step clones upstream dependencies from GitHub, using that owner's
-`dependencies.repos`. Hardware's Python SDK revision is in the robot repository's
+Regular application image builds fetch their owning repository from upstream
+`main`. Their `vcs import` steps clone dependencies from GitHub, using each
+repository's `dependencies.repos`. Hardware's Python SDK revision is in the robot repository's
 `docker/dependencies/jazzy-hardware-python.env`.
 
-For example, the Gazebo image uses local `curtmini_piper_gz_sim` code but downloads
-`curtmini_piper`, `curt_mini`, `agx_arm_urdf`, and `neo_gz_worlds` from its manifest.
-It does not automatically use those neighbouring checkouts. `neo_gz_worlds` uses
-the `gz-harmonic` branch for the office assets. The project-level
+Compose still loads service definitions from the local robot and simulator
+checkouts. Local edits to their `docker/compose.yaml` files can therefore change
+commands, mounts, and build settings even for regular images. The local
+`geometry.yaml`, `camera_mounts.yaml`, `initial_state.yaml`, and navigation maps
+also remain runtime inputs. Review those files when checking a student's setup.
+
+For example, the Gazebo image builds upstream `curtmini_piper_gz_sim` code and
+imports `curtmini_piper`, `curt_mini`, `agx_arm_urdf`, and `neo_gz_worlds` from
+its manifest. `neo_gz_worlds` uses the `gz-harmonic` branch for the office
+assets. The project-level
 `project-docs/dependencies.repos` creates the host workspace layout.
 
 ### Robot geometry in the simulator image
 
-The simulator manifest now tracks `curtmini_piper` on `main`. The robot
-description reads `curtmini_piper_description/config/geometry.yaml`, whose
-directory is bind-mounted into the containers. Restart the simulation and its
-clients after changing it. Older cached images may still contain a description
-that ignores this YAML: rebuild with refreshed dependencies, or use the
-[local workspace workflow](#local-workspace-development) to build the neighbouring
-robot checkout. A manifest change alone does not update an existing image.
+The Gazebo build gets the robot description and MoveIt configuration from
+upstream `curtmini_piper/main`. The description reads
+`curtmini_piper_description/config/geometry.yaml`, whose local directory is
+bind-mounted into the containers. Restart the simulation and its clients after
+changing mount values in that YAML; no image rebuild is needed for those values.
+The simulator also publishes the camera mount TFs from the same geometry file.
+Physical camera mount TFs use the separate, measured
+`curtmini_piper_sensors/config/camera_mounts.yaml`.
+See [Cameras](../../startup/cameras.md) for the two setups.
+
+Changes to URDF, launch, bridge, or controller code require updating upstream
+`main` and rebuilding the regular image. Use the local workspace workflow to
+test these changes before they are published.
 
 The simulation's starting base pose and six arm joint positions are configured
 in `curtmini_piper_gz_sim/config/initial_state.yaml`. The `gz-sim` service
-bind-mounts that file's directory, so a service restart applies YAML edits
-without rebuilding the image. See the [simulation guide](../../startup/simulation.md#starting-pose-and-joint-positions).
+bind-mounts that file, so a service restart applies pose edits without
+rebuilding the image. Bridge and controller YAML files use the upstream image
+copies. See the [simulation guide](../../startup/simulation.md#starting-pose-and-joint-positions).
 
-Rebuild an application image after changing its local code. `--build` may reuse
-cached Git downloads even when a remote branch advances. To refresh simulation
+Rebuild an application image after upstream code changes. `--build` may reuse
+cached Git imports even when a remote branch advances. To refresh simulation
 dependencies without changing the manifest:
 
 ```sh

@@ -6,6 +6,7 @@
 services
 real_hardware
 simulation
+cameras
 navigation
 rviz
 moveitpy

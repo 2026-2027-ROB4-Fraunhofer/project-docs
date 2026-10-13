@@ -21,6 +21,9 @@ docker compose run --rm --build moveit-rviz-sim
 Use `moveit-rviz-hardware` for an active real robot. Match the backend's distro,
 middleware, ROS domain, and mount/TCP settings. This service displays MoveIt;
 use `nav2-rviz-sim` for the [navigation view](navigation.md).
+The MoveIt RViz configuration includes both camera bodies, TF, and color and
+depth image displays. Follow the [camera guide](cameras.md) to start the
+simulated or physical image publishers before opening those displays.
 See the [service guide](services.md) for the available clients.
 
 ## Native source workspace

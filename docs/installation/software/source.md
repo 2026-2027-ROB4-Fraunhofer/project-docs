@@ -62,6 +62,11 @@ source /opt/ros/jazzy/setup.bash
 colcon build --packages-up-to \
   curtmini_piper_bringup \
   curtmini_piper_gz_sim \
-  curtmini_piper_motion_examples
+  curtmini_piper_motion_examples \
+  curtmini_piper_sensors
 source install/setup.bash
 ```
+
+`curtmini_piper_sensors` provides the two physical D435i launch instances.
+See [Cameras](../../startup/cameras.md) for their serial numbers and measured
+mount offsets.

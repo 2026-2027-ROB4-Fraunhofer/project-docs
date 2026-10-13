@@ -63,8 +63,9 @@ for workflow selection, precedence and alternate checkout paths.
 
 The infrastructure includes the Compose files in `curtmini_piper/docker/` and
 `curtmini_piper_gz_sim/docker/`. Each application repository owns its Dockerfile,
-package lists, and source dependency manifest. Image builds copy that repository's
-local code and clone its upstream dependencies from GitHub. See
+package lists, and source dependency manifest. Regular image builds fetch
+robot and simulator code from upstream `main`; the workspace workflow builds
+local code. Mount settings such as `geometry.yaml` remain local. See
 [Docker architecture and source inputs](docs/installation/software/docker.md#where-the-docker-files-live).
 
 ## 3. Run or develop
@@ -72,6 +73,7 @@ local code and clone its upstream dependencies from GitHub. See
 - [Which service should I use?](docs/startup/services.md)
 - [Mapping and Nav2 goal navigation](docs/startup/navigation.md)
 - [Gazebo office world, RViz, and keyboard teleop](docs/startup/simulation.md)
+- [Two cameras in Gazebo and on hardware](docs/startup/cameras.md)
 - [Real hardware](docs/startup/real_hardware.md)
 - [Standalone RViz](docs/startup/rviz.md) and [MoveItPy](docs/startup/moveitpy.md)
 - [Local workspace development](docs/installation/software/docker.md#local-workspace-development):

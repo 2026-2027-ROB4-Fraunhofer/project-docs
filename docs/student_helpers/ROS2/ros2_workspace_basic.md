@@ -18,13 +18,14 @@ rob4_fraunhofer_ws/
 
 The `src` folder contains ROS 2 packages and metapackages.
 
-For example, `curtmini_piper` contains five ROS 2 packages:
+For example, `curtmini_piper` contains six ROS 2 packages:
 
 - `curtmini_piper_bringup`
 - `curtmini_piper_description`
 - `curtmini_piper_moveit_config`
 - `curtmini_piper_navigation`: simulation mapping and goal navigation.
 - `curtmini_piper_motion_examples`
+- `curtmini_piper_sensors`: physical camera launches and mount transforms.
 
 ## Building ROS 2 packages
 

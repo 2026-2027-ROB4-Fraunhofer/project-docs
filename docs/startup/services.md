@@ -27,10 +27,10 @@ in a Compose file does not mean you must start it for every task.
   - What it does
   - When to use it
 * - `gz-sim`
-  - Runs Gazebo, the simulated robot controllers and the MoveIt server.
+  - Runs Gazebo, simulated controllers, two cameras, lidar, and the MoveIt server.
   - Start this as the backend for simulation tasks.
 * - `moveit-rviz-sim`
-  - Opens RViz with the MoveIt panel to display the robot and plan arm motions.
+  - Opens RViz with the MoveIt panel, camera views, and robot TF.
   - Use with `gz-sim` when working on arm motion. It does not start Gazebo itself.
 * - `moveitpy-sim`
   - Runs a Python example that asks MoveIt to plan an arm motion; execution is optional.
@@ -40,7 +40,7 @@ in a Compose file does not mean you must start it for every task.
   - Use with `gz-sim` to drive manually, including while making a map.
 * - `mapping-sim`
   - Runs SLAM Toolbox to build a map from lidar scans and odometry.
-  - Use with `gz-sim` and manual driving to create a map, then save it.
+  - Use with `gz-sim` in the `curtmini_piper_map` office world and manual driving to create a map, then save it.
 * - `nav2-sim`
   - Loads a saved map, localizes with AMCL, and runs Nav2 to drive the base to goals.
   - Use with `gz-sim` after creating a map. Stop mapping and keyboard driving first.
@@ -53,6 +53,7 @@ in a Compose file does not mean you must start it for every task.
 the RViz service that matches your task.
 
 The [simulation guide](simulation.md) covers Gazebo and keyboard driving.
+The [camera guide](cameras.md) covers simulated images, mounts, and TF.
 The [navigation guide](navigation.md) covers saving a map, switching from SLAM
 to AMCL, and sending goal poses. Mapping and AMCL must not run together because
 both publish the `map → odom` transform. Stop keyboard driving before Nav2
@@ -71,6 +72,12 @@ drives because both send commands to the base.
 * - `real-bringup`
   - Starts the Curt Mini base and Piper arm hardware, plus MoveIt. Joystick and IMU are enabled by default.
   - Use as the backend for the complete real robot.
+* - `realsense-base`
+  - Starts the base D435i selected by `BASE_CAMERA_SERIAL` and publishes its mount TF.
+  - Use when base color, depth, or camera IMU data is needed.
+* - `realsense-tool`
+  - Starts the tool D435i selected by `TOOL_CAMERA_SERIAL` and publishes its mount TF.
+  - Use when end-effector color, depth, or camera IMU data is needed.
 * - `piper-bringup`
   - Starts only the real Piper arm and MoveIt, without the base, joystick or IMU.
   - Use as the backend when working with the arm alone.
@@ -87,6 +94,8 @@ drives because both send commands to the base.
 
 Choose one hardware backend: `real-bringup` or `piper-bringup`. Follow the
 [hardware guide](real_hardware.md) for CAN setup and startup commands.
+The two RealSense services can run separately; see [Cameras](cameras.md) for
+serial numbers and measured mount poses.
 For example, after preparing the arm and GUI access:
 
 ```sh

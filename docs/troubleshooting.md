@@ -22,9 +22,19 @@ python3 -c "import pyAgxArm; print(pyAgxArm.__file__)"
 ## Mount and TCP offsets
 
 Edit `curtmini_piper_description/config/geometry.yaml` to set the arm, TCP,
-and lidar mounts. Containers bind-mount this config; restart bringup, RViz,
-and motion clients after an edit. A native install without `--symlink-install`
-also needs the description package rebuilt to update its installed copy.
-Older cached `gz-sim` images may contain a robot description that does not
-read this YAML; see the
-[simulator image caveat](installation/software/docker.md#robot-geometry-in-the-simulator-image).
+lidar, and simulated camera mounts. Containers bind-mount this config; restart
+bringup, Gazebo, RViz, and motion clients that use it after an edit. A native
+install without `--symlink-install` also needs the description package rebuilt
+to update its installed copy. Regular Gazebo builds fetch robot code from
+upstream `main`; use the workspace workflow to test local URDF changes.
+Physical camera TF offsets are separate, in
+`curtmini_piper_sensors/config/camera_mounts.yaml`, and must be measured on the
+robot. See [Cameras](startup/cameras.md).
+
+If only the lidar's position or orientation changes, update
+`lidar_mount_on_base` in `geometry.yaml` and verify that `/scan` aligns with
+walls in RViz. The current Nav2 and SLAM configurations use `/scan` and TF to
+locate `hokuyo_link`; their parameters normally need no change while those
+names stay the same. Revisit the navigation footprint if the new mount changes
+the robot's outline, and check an existing map if the new scan plane sees a
+different set of obstacles.
