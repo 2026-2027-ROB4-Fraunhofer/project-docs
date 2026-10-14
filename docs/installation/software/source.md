@@ -1,6 +1,8 @@
 # Source installation
 
 These instructions assume ROS 2 Jazzy on Ubuntu 24.04.
+The `curtmini_piper_tools` repository is private; importing
+`project-docs/dependencies.repos` requires GitHub access to it through SSH.
 
 ## Install dependencies
 
@@ -62,8 +64,10 @@ source /opt/ros/jazzy/setup.bash
 colcon build --packages-up-to \
   curtmini_piper_bringup \
   curtmini_piper_gz_sim \
-  curtmini_piper_motion_examples \
-  curtmini_piper_sensors
+  curtmini_piper_moveitpy_example \
+  curtmini_piper_sensors \
+  curtmini_piper_tag_tools \
+  curtmini_piper_nav_examples
 source install/setup.bash
 ```
 

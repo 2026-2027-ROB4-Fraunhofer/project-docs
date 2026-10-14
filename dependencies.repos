@@ -17,6 +17,10 @@ repositories:
         type: git
         url: https://github.com/ipa-may/curtmini_piper.git
         version: main
+    rob4_fraunhofer_ws/src/curtmini_piper_tools:
+        type: git
+        url: git@github.com:2026-2027-ROB4-Fraunhofer/curtmini_piper_tools.git
+        version: main
     rob4_fraunhofer_ws/src/curtmini_piper_simulation/curtmini_piper_gz_sim:
         type: git
         url: https://github.com/ipa-may/curtmini_piper_gz_sim.git

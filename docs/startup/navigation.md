@@ -26,7 +26,7 @@ needed; the initial setup does not need them.
 
 Create `curtmini_piper_containers/.env` using the
 [Docker setup](../installation/software/docker.md#configure-once-with-env).
-Edit these values in the **actual `.env` file** for local simulation and mapping.
+Edit these values in the **actual `.env` file** for mapping.
 The copied `.env.example` has `SIM_WORLD=curtmini_piper`, which is a mostly empty
 ground-plane world. Mapping needs the office world `curtmini_piper_map`:
 
@@ -36,12 +36,11 @@ RMW=cyclonedds
 ROS_DOMAIN_ID=42
 SIM_WORLD=curtmini_piper_map
 SIM_USE_HOKUYO=true
-COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
 Compose reads `.env` automatically; you do not need exports or `-f` options
-in each terminal. These are the existing Compose files. The workspace builder
-includes navigation, simulation and MoveIt; it does not build hardware bringup.
+in each terminal. The regular images include navigation, simulation and MoveIt.
 See the [service guide](services.md) for the role of each container.
 
 Run the following from the container repository. Use this directory in every
@@ -49,14 +48,13 @@ terminal for the rest of the guide:
 
 ```bash
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-docker compose build workspace-builder
-docker compose run --rm workspace-builder
 xhost +si:localuser:root
 ```
 
-After changing navigation launch files or configuration, rerun the workspace
-builder and restart the affected services. Rebuild the image only when image
-dependencies change. Build and install folders remain in Docker volumes.
+The first mapping command below builds the application images. After publishing
+navigation code or configuration changes to upstream `main`, refresh the
+navigation image as described in the
+[Docker guide](../installation/software/docker.md#upstream-code-and-local-settings).
 
 ## 2. Make a map
 
@@ -66,7 +64,7 @@ world. `--force-recreate` replaces an already running Gazebo container that
 may have loaded that simple world:
 
 ```bash
-SIM_WORLD=curtmini_piper_map docker compose up -d --force-recreate \
+SIM_WORLD=curtmini_piper_map docker compose up --build -d --force-recreate \
   gz-sim mapping-sim nav2-rviz-sim
 docker compose logs -f mapping-sim
 ```
@@ -208,9 +206,8 @@ This is a 2D lidar setup and does not provide full 3D arm clearance checking.
 - **Transform or time errors:** keep the same ROS domain and middleware in
   all terminals; all navigation nodes must use the simulator clock.
 
-For regular images without the workspace overlay, build `mapping-sim` once:
-the three navigation services share the same `navigation` image. The workspace
-workflow above uses your local robot and simulation sources together.
+The mapping and navigation services share the same `navigation` image, so the
+mapping build also supplies `nav2-sim` later in this guide.
 
 References: [Nav2 setup guide](https://docs.nav2.org/setup_guides/index.html)
 and [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox).

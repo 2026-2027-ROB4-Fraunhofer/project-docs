@@ -13,19 +13,23 @@ rob4_fraunhofer_ws/
     |-- src
         |--  curt_mini
         |--  curtmini_piper
+        |--  curtmini_piper_tools
         |--  curtmini_piper_gz_sim
 ```
 
 The `src` folder contains ROS 2 packages and metapackages.
 
-For example, `curtmini_piper` contains six ROS 2 packages:
+For example, `curtmini_piper` contains five ROS 2 packages:
 
 - `curtmini_piper_bringup`
 - `curtmini_piper_description`
 - `curtmini_piper_moveit_config`
 - `curtmini_piper_navigation`: simulation mapping and goal navigation.
-- `curtmini_piper_motion_examples`
 - `curtmini_piper_sensors`: physical camera launches and mount transforms.
+
+The separate `curtmini_piper_tools` repository contains the MoveItPy motion
+example, an AprilTag pose tool, and a Python Nav2 goal client. Each is a ROS
+package that can be built separately.
 
 ## Building ROS 2 packages
 

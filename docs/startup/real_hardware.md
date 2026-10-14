@@ -8,20 +8,23 @@ source install/setup.bash
 bash src/piper_driver/agx_arm_ros/scripts/can_activate.sh
 ```
 
-Start the Piper arm and Curt Mini base:
+Start the Piper arm and MoveIt:
 
 ```bash
 ros2 launch curtmini_piper_bringup bringup.launch.py
 ```
 
-Start only the Piper arm:
+For the complete robot, start the Curt Mini base in a second terminal:
 
 ```bash
-ros2 launch curtmini_piper_bringup bringup.launch.py start_base:=false
+ros2 launch curt_mini_bringup robot_base.launch.py \
+  publish_robot_description:=False
 ```
 
-By default, bringup starts the base hardware, joystick, IMU, Piper arm,
-MoveIt, and RViz. By default, `control_enabled=true` lets the Piper driver
+The Piper launch publishes the complete robot model. The base launch skips
+its base-only model in this combination. For the base alone, use
+`ros2 launch curt_mini_bringup robot_base.launch.py` with the default model
+publisher. By default, `control_enabled=true` lets the Piper driver
 accept commands continuously. With `control_enabled:=false`, bringup starts
 the trajectory-status gate, which enables commands during an active trajectory.
 
@@ -29,7 +32,7 @@ For hardware-free MoveIt and RViz testing:
 
 ```bash
 ros2 launch curtmini_piper_bringup bringup.launch.py \
-  start_base:=false start_arm_hardware:=false
+  start_arm_hardware:=false
 ```
 
 
@@ -87,11 +90,16 @@ docker compose stop piper-bringup moveit-rviz-hardware
 
 ### Arm + Base
 
-Start both arm and base (use `real-bringup`):
+Start both arm and base as separate services:
 
 ```sh
-docker compose up --build real-bringup moveit-rviz-hardware
+docker compose up --build base-bringup piper-bringup moveit-rviz-hardware
 ```
+
+`piper-bringup` publishes the complete robot model. Compose therefore sets
+`PUBLISH_BASE_DESCRIPTION=False` for `base-bringup`. To run the base without
+the Piper service, set `PUBLISH_BASE_DESCRIPTION=True` in `.env` or for that
+command so the base publishes its own model.
 
 ### Two D435i cameras
 
@@ -102,7 +110,7 @@ serial number and publish their mount TFs. Measure the real mounts in
 complete robot and RViz:
 
 ```sh
-docker compose up --build real-bringup realsense-base realsense-tool moveit-rviz-hardware
+docker compose up --build base-bringup piper-bringup realsense-base realsense-tool moveit-rviz-hardware
 ```
 
 See [Cameras](cameras.md) for the expected topics, native launch commands,
@@ -112,18 +120,16 @@ and the difference between simulated and physical mount configuration.
 
 ## Updating hardware images
 
-The workspace builder is for simulation, navigation and MoveIt examples. It does not build
-hardware bringup or drivers, and `compose.workspace.yaml` does not override
-hardware services. Regular hardware images build from upstream
-`curtmini_piper/main`. After reviewed changes reach that branch, refresh the
+Hardware images build from upstream `curtmini_piper/main`. After reviewed
+changes reach that branch, refresh the
 dedicated hardware and RViz images:
 
 ```sh
 docker compose build --no-cache piper-bringup moveit-rviz-hardware
 ```
 
-Then use the hardware startup commands above. For full arm and base bringup,
-use `real-bringup` in place of `piper-bringup`. For local hardware code changes,
+Then use the hardware startup commands above. For the complete robot, also
+build and start `base-bringup`. For local hardware code changes,
 use a [native source workspace](../installation/software/source.md).
 
 

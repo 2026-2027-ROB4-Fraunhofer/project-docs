@@ -1,8 +1,7 @@
 # Simulation
 
 Complete the [Docker setup](../installation/software/docker.md) first. This
-workflow builds application images; it does not require a native ROS workspace
-build or the workspace overlay.
+guide uses regular application images.
 
 ## Configure once
 
@@ -19,10 +18,6 @@ SIM_USE_HOKUYO=true
 SIM_USE_CAMERAS=true
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
-
-The template includes `compose.workspace.yaml` by default. If you keep it,
-follow [local workspace development](../installation/software/docker.md#local-workspace-development)
-to build the workspace before starting simulation.
 
 In **each terminal**, change to the directory containing `.env`:
 
@@ -123,9 +118,3 @@ in terminal 1 to stop Gazebo and RViz. Alternatively, from a configured terminal
 ```sh
 docker compose stop gz-sim moveit-rviz-sim
 ```
-
-## Develop with local workspace packages
-
-Follow [local workspace development](../installation/software/docker.md#local-workspace-development)
-to build the mounted source repositories and launch with `compose.workspace.yaml`.
-Keep that file in the `.env` file’s `COMPOSE_FILE` value while using the shared installation.

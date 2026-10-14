@@ -41,15 +41,8 @@ bind-mounted, so the sensor image does not need rebuilding for pose changes.
 
 ## Run in Gazebo
 
-Follow the [Docker setup](../installation/software/docker.md). For the regular
-application images, which build robot and simulator code from upstream `main`,
-set this in `curtmini_piper_containers/.env` and leave
-`SIM_USE_CAMERAS=true` (the default):
-
-```ini
-COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
-SIM_USE_CAMERAS=true
-```
+Follow the [Docker setup](../installation/software/docker.md) and leave
+`SIM_USE_CAMERAS=true` in `curtmini_piper_containers/.env` (the default).
 
 From `curtmini_piper_containers/`, run:
 
@@ -62,12 +55,9 @@ The MoveIt RViz view includes both camera bodies, TF, and color and depth image
 displays. `SIM_USE_CAMERAS=false` disables the Gazebo camera sensors and their
 camera TF publishers. The simulator's own worlds include the sensor systems
 needed for images and IMU; other Gazebo worlds may need those systems added.
-The regular image includes simulated cameras once their simulator code is on
-upstream `main`; use the local workspace workflow to test simulator changes
-before then. After upstream changes land, run
-`docker compose build --no-cache gz-sim` once to refresh cached Git imports.
-If you select `compose.workspace.yaml` instead, build `workspace-builder` first
-as described in [local workspace development](../installation/software/docker.md#local-workspace-development).
+After publishing simulator changes to upstream `main`, follow the
+[image refresh instructions](../installation/software/docker.md#upstream-code-and-local-settings)
+if the existing image still has the previous code.
 
 ## Run physical cameras
 
@@ -83,11 +73,11 @@ Replace these examples with the serials of your cameras. With the hardware
 `COMPOSE_FILE` selection from the [real hardware guide](real_hardware.md), run:
 
 ```sh
-docker compose up --build real-bringup realsense-base realsense-tool moveit-rviz-hardware
+docker compose up --build base-bringup piper-bringup realsense-base realsense-tool moveit-rviz-hardware
 ```
 
 The two RealSense services are independent; you can start either one on its
-own. `real-bringup` supplies the robot's TF tree for RViz. Each camera launch
+own. `piper-bringup` supplies the robot's TF tree for RViz. Each camera launch
 requires a serial number so both services cannot accidentally select the same
 USB device. For a native Jazzy workspace, run one command in each of two
 sourced terminals:

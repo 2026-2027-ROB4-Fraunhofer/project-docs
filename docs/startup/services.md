@@ -35,6 +35,9 @@ in a Compose file does not mean you must start it for every task.
 * - `moveitpy-sim`
   - Runs a Python example that asks MoveIt to plan an arm motion; execution is optional.
   - Use with `gz-sim` for scripted arm motion. `MOVEIT_PLAN_ONLY=true` is the default.
+* - `moveit-action-client-sim`
+  - Runs a C++ client that sends an arm goal to Gazebo's MoveIt server.
+  - Use with `gz-sim` for joint, absolute TCP, or relative TCP goals. It plans only by default.
 * - `keyboard-teleop-sim`
   - Turns keyboard input into mobile-base velocity commands.
   - Use with `gz-sim` to drive manually, including while making a map.
@@ -47,6 +50,12 @@ in a Compose file does not mean you must start it for every task.
 * - `nav2-rviz-sim`
   - Opens RViz with the map, lidar, path, initial-pose and navigation-goal tools.
   - Use during mapping or navigation. It does not start SLAM or Nav2 itself.
+* - `tag-pose-sim`
+  - Publishes a fresh observed AprilTag pose in `map` using the camera and robot TF chain.
+  - Use with `apriltag-base` and either mapping or Nav2 localization.
+* - `nav2-goal-client`
+  - Provides the Python `nav_to_pose` command in a one-off container.
+  - Use with an active Nav2 server after choosing a goal in free space.
 ```
 
 **MoveIt controls arm motion; Nav2 controls mobile-base navigation.** Choose
@@ -58,6 +67,7 @@ The [navigation guide](navigation.md) covers saving a map, switching from SLAM
 to AMCL, and sending goal poses. Mapping and AMCL must not run together because
 both publish the `map → odom` transform. Stop keyboard driving before Nav2
 drives because both send commands to the base.
+See [Python tools](tools.md) for tag poses and scripted Nav2 goals.
 
 ## Real robot
 
@@ -69,9 +79,9 @@ drives because both send commands to the base.
 * - Service
   - What it does
   - When to use it
-* - `real-bringup`
-  - Starts the Curt Mini base and Piper arm hardware, plus MoveIt. Joystick and IMU are enabled by default.
-  - Use as the backend for the complete real robot.
+* - `base-bringup`
+  - Starts the Curt Mini base, joystick, and IMU using `curt_mini_bringup`.
+  - Use with `piper-bringup` for the complete real robot.
 * - `realsense-base`
   - Starts the base D435i selected by `BASE_CAMERA_SERIAL` and publishes its mount TF.
   - Use when base color, depth, or camera IMU data is needed.
@@ -79,20 +89,23 @@ drives because both send commands to the base.
   - Starts the tool D435i selected by `TOOL_CAMERA_SERIAL` and publishes its mount TF.
   - Use when end-effector color, depth, or camera IMU data is needed.
 * - `piper-bringup`
-  - Starts only the real Piper arm and MoveIt, without the base, joystick or IMU.
-  - Use as the backend when working with the arm alone.
+  - Starts the Piper arm, complete robot model, and MoveIt.
+  - Use alone for arm work or with `base-bringup` for the complete robot.
 * - `moveit-rviz-hardware`
   - Opens the MoveIt RViz client connected to the real robot.
-  - Use with either `real-bringup` or `piper-bringup`.
+  - Use with `piper-bringup`.
 * - `moveitpy-hardware`
   - Runs the Python arm-motion example against real hardware.
   - Use after hardware bringup; it plans only by default. `MOVEIT_PLAN_ONLY=false` enables execution.
+* - `moveit-action-client-hardware`
+  - Sends a C++ arm goal to the real robot's MoveIt server.
+  - Use with `piper-bringup`; it plans only by default.
 * - `keyboard-teleop-hardware`
   - Sends keyboard driving commands through the base's command multiplexer.
-  - Use with the mobile base running under `real-bringup`.
+  - Use with `base-bringup`.
 ```
 
-Choose one hardware backend: `real-bringup` or `piper-bringup`. Follow the
+Start `piper-bringup` for the arm, and add `base-bringup` when driving the base. Follow the
 [hardware guide](real_hardware.md) for CAN setup and startup commands.
 The two RealSense services can run separately; see [Cameras](cameras.md) for
 serial numbers and measured mount poses.
@@ -116,7 +129,7 @@ The navigation services currently target simulation.
   - When to use it
 * - `workspace-builder`
   - Builds local simulation, navigation and MoveIt example packages into shared Docker volumes. It excludes hardware bringup and drivers.
-  - Select `compose.workspace.yaml` in `.env`, then run it before local simulation and after source edits. It exits when the build finishes.
+  - Optional: use it to test unpublished local source changes. See the local workspace guide.
 * - `ros-cli`
   - Opens a shell with ROS command-line tools.
   - Inspect nodes, topics, services or actions using the same middleware and domain as the running robot.
@@ -125,16 +138,8 @@ The navigation services currently target simulation.
   - Available with `compose.zenoh.yaml`; services in that setup depend on it. CycloneDDS does not need this service.
 ```
 
-For local development, these commands do different jobs:
-
-```sh
-docker compose build workspace-builder
-docker compose run --rm workspace-builder
-```
-
-`build` creates the development image with ROS dependencies and build tools.
-`run` starts a container from that image and builds your mounted ROS packages.
-See [local workspace development](../installation/software/docker.md#local-workspace-development).
+For this optional service, see
+[local workspace development](../installation/software/docker.md#local-workspace-development).
 
 ## Why are service names repeated in the CycloneDDS file?
 

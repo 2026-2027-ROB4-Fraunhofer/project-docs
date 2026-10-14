@@ -26,7 +26,8 @@ lidar, and simulated camera mounts. Containers bind-mount this config; restart
 bringup, Gazebo, RViz, and motion clients that use it after an edit. A native
 install without `--symlink-install` also needs the description package rebuilt
 to update its installed copy. Regular Gazebo builds fetch robot code from
-upstream `main`; use the workspace workflow to test local URDF changes.
+upstream `main`. For unpublished local URDF changes, use
+[local workspace development](installation/software/docker.md#local-workspace-development).
 Physical camera TF offsets are separate, in
 `curtmini_piper_sensors/config/camera_mounts.yaml`, and must be measured on the
 robot. See [Cameras](startup/cameras.md).

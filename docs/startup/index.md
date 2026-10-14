@@ -7,6 +7,8 @@ services
 real_hardware
 simulation
 cameras
+apriltags
+tools
 navigation
 rviz
 moveitpy

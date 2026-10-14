@@ -8,8 +8,7 @@ MoveIt, joint states, transforms, and the planning scene. The
 
 Use the same `curtmini_piper_containers/.env` as the backend; see
 [configure once with `.env`](../installation/software/docker.md#configure-once-with-env).
-Keep `compose.gui.yaml` in `COMPOSE_FILE`. For local simulation, also keep
-`compose.workspace.yaml` selected and build the workspace first.
+Keep `compose.gui.yaml` in `COMPOSE_FILE` so RViz can open on the desktop.
 Compose reads the file for every command, so no per-terminal exports are needed.
 
 ```sh
