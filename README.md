@@ -61,11 +61,15 @@ shell variables take precedence over `.env`. See the
 [Docker configuration guide](docs/installation/software/docker.md#configure-once-with-env)
 for workflow selection, precedence and alternate checkout paths.
 
-The infrastructure includes the Compose files in `curtmini_piper/docker/`,
-`curtmini_piper_tools/compose.yaml`, and `curtmini_piper_gz_sim/docker/`. Each
-application repository owns its Dockerfile and package lists. Regular image
-builds fetch published code from upstream `main`; the workspace workflow
-builds local code. Mount settings such as `geometry.yaml` remain local. See
+Each robot package owns its Dockerfile and service definitions in a `docker/`
+folder. `curtmini_piper/compose.yaml` collects those services, and
+`curtmini_piper_containers` combines them with simulation and tools, adding
+project-wide communication and GUI settings.
+
+By default, image builds use published code from upstream `main`. To build
+unpublished robot changes, use the [local robot image workflow](docs/installation/software/docker.md#build-local-robot-images).
+The workspace overlay is a separate option for local simulation and tools
+development. Mount settings such as `geometry.yaml` remain local. See
 [Docker architecture and source inputs](docs/installation/software/docker.md#where-the-docker-files-live).
 
 ## 3. Run or develop

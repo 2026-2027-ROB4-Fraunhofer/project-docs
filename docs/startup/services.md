@@ -138,13 +138,24 @@ The navigation services currently target simulation.
   - Available with `compose.zenoh.yaml`; services in that setup depend on it. CycloneDDS does not need this service.
 ```
 
-For this optional service, see
+For `workspace-builder`, see
 [local workspace development](../installation/software/docker.md#local-workspace-development).
+
+You may also see `piper-ros-base`, `piper-description`, and
+`piper-moveit-config` when listing services. They build shared robot images,
+not running robot components. They have zero replicas (`scale: 0`), so normal
+startup creates no containers for them. Compose builds these images when
+another robot image needs them; you do not need to start them manually.
+
+The robot repository also has an optional `compose.test.yaml` for
+[developer build checks](../installation/software/docker.md#optional-developer-checks).
+It is not part of normal startup and does not test physical hardware.
 
 ## Why are service names repeated in the CycloneDDS file?
 
-The root `compose.yaml` includes the service definitions from the robot and
-simulator repositories. Those definitions specify what each service runs.
+The infrastructure's root `compose.yaml` includes the service definitions from
+the robot, simulator, and tools repositories. The robot root file in turn
+includes its package Compose files. Those definitions specify what each service runs.
 `compose.cyclonedds.yaml` adds the CycloneDDS configuration file and environment
 setting to the application services with matching names.
 
