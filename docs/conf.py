@@ -6,9 +6,11 @@ extensions = [
     "myst_parser",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinxcontrib.mermaid",
 ]
 source_suffix = {".md": "markdown"}
 myst_heading_anchors = 3
+myst_fence_as_directive = ["mermaid"]
 exclude_patterns = [
     "_build",
     "Thumbs.db",

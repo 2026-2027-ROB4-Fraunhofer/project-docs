@@ -4,39 +4,53 @@
 
 Follow Docker's [Ubuntu installation guide](https://docs.docker.com/engine/install/ubuntu/)
 and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
+
 Install the Compose plugin too; use **Docker Compose 2.24.4 or newer** for all
-workflows in this guide. The workspace and test overlays use
-[`!override`](https://docs.docker.com/reference/compose-file/merge/#replace-value),
-which requires that version. Use `docker compose` (with a space), not the legacy
-`docker-compose` command.
+workflows in this guide. 
+
+The workspace and test overlays use [`!override`](https://docs.docker.com/reference/compose-file/merge/#replace-value), which requires that version. 
+
+Use `docker compose` (with a space), not the legacy `docker-compose` command.
 
 ```sh
 docker compose version
 ```
 
-Docker provides the project's ROS 2 environment without a host ROS installation.
+Docker provides the project's ROS 2 environment without requiring ROS 2 to be installed on the host. You only need an AMD64 (x86-64) computer running a Docker-compatible operating system, with Docker installed. 
+
+The project's container images currently target AMD64 only; ARM support may become a future requirement.
+
+Using docker containers may fill your disk space quite fast. 
 See [Docker cleanup](../../student_helpers/Tools/docker.md) for managing disk usage.
 
 ## Configure this project
 
-After [cloning the workspace](index.md#create-the-workspace), run Compose commands
-from the infrastructure repository:
+After [cloning the workspace](index.md#create-the-workspace), run Compose commands from the infrastructure repository.
 
+Navigate to the curtmini_piper_containers repo:
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
+```
+
+and copy the `.env.example` file into a .env. The next section describes this file
+```sh
 [ -f .env ] || cp .env.example .env
 ```
 
 ### Configure once with `.env`
 
-Edit `curtmini_piper_containers/.env` in your text editor. Docker Compose reads
-it automatically whenever you run a command from this directory. You do not
+We will see how to edit the `curtmini_piper_containers/.env`. 
+
+Docker Compose reads it automatically whenever you run a command from this directory. You do not
 need to run `source .env` or repeat shell exports in every terminal.
 `.env.example` is a template; copy it to `.env` to use its settings.
 
-The example selects regular application images with GUI support:
+See official docker documentation on [variable interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/).
+
+In this project, the environment variables are:
 
 ```sh
+# .env.example
 CONTAINER_ROS_DISTRO=jazzy
 RMW=cyclonedds
 ROS_DOMAIN_ID=42
@@ -46,23 +60,45 @@ SIM_USE_CAMERAS=true
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
+| Variable | What it does | Values |
+| --- | --- | --- |
+| `CONTAINER_ROS_DISTRO` | Selects the container [ROS 2 distribution](https://docs.ros.org/en/jazzy/Releases/Release-Jazzy-Jalisco.html). | `jazzy` (the only supported value) |
+| `RMW` | Selects the [ROS middleware](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Different-Middleware-Vendors.html). | `cyclonedds` or `zenoh` (only cyclonedds is tested at least until beginning of december) |
+| `ROS_DOMAIN_ID` | Groups ROS nodes that can discover each other; see [ROS domains](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Domain-ID.html). | `42` here; 0–101 is recommended on Linux |
+| `SIM_WORLD` | Selects the Gazebo world. | `curtmini_piper`, `curtmini_piper_map`, another packaged world, or an SDF path inside the container |
+| `SIM_USE_HOKUYO` | Enables the simulated lidar. | `true` or `false` |
+| `SIM_USE_CAMERAS` | Enables the simulated cameras and their IMUs. | `true` or `false` |
+| `COMPOSE_FILE` | Lists [Compose files](https://docs.docker.com/compose/how-tos/environment-variables/envvars/#compose_file) to combine. | Colon-separated files; see the workflows below |
+
+
+#### About gz worlds and SIM_WORLD env variable
+For `SIM_WORLD`, browse the [simulator worlds](https://github.com/ipa-may/curtmini_piper_gz_sim/tree/main/worlds)
+and [Neo worlds](https://github.com/ipa-may/neo_gz_worlds/tree/gz-harmonic/worlds).
+
+To add an environment, create an [SDF world](https://gazebosim.org/docs/harmonic/sdf_worlds/)
+in the simulator's `worlds/` directory, publish it for regular image builds,
+rebuild the image, and set `SIM_WORLD` to its filename without `.sdf`.
+
 The office world above is useful for navigation; the template initially selects
 the simpler `curtmini_piper` world. To make a useful map, change the **actual**
 `.env` file to `SIM_WORLD=curtmini_piper_map`, or use the explicit world override
 in the [navigation guide](../../startup/navigation.md#2-make-a-map).
-`COMPOSE_FILE` lists the files to combine,
-in order, separated by colons on Linux. Choose one active `COMPOSE_FILE` line:
+
+#### About COMPOSE_FILE env variable
+`COMPOSE_FILE` lists the files to combine, in order, separated by colons on Linux. Choose one active `COMPOSE_FILE` line:
 
 | Workflow | Value of `COMPOSE_FILE` in `.env` |
 | --- | --- |
 | Regular simulation, Nav2, or hardware, with GUI | `compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml` |
 | Optional local simulation workspace, with GUI | `compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml` |
 
-For regular images, use `--build` with the services you want to start. If an
-existing `.env` still selects `compose.workspace.yaml`, remove it for this
-workflow. For unpublished changes, see [which source workflow to use](#choose-a-source-workflow).
-Changing `.env` changes future Compose commands; it does not restart already
-running services.
+For regular images, use `--build` with the services you want to start. 
+
+For unpublished changes, see [which source workflow to use](#choose-a-source-workflow).
+
+:::{attention}
+Changing `.env` changes future Compose commands; it does not restart already running services.
+:::
 
 With the regular-image setting, for example, hardware startup becomes:
 
@@ -71,20 +107,18 @@ xhost +si:localuser:root
 docker compose up --build piper-bringup moveit-rviz-hardware
 ```
 
-In each new terminal, just change to `curtmini_piper_containers/` and run the
-short commands. The `xhost` command is needed once per desktop session for GUI
-access. `compose.gui.yaml` passes the display and graphics devices to the
-containers; omitting it can cause RViz to exit with a Qt `xcb` error.
+It is much simpler to type in than passing all compose overlays.
 
-### Container ROS distribution
+### On GUI access
 
-`CONTAINER_ROS_DISTRO=jazzy` selects the container ROS version independently of
-the host's `ROS_DISTRO`. `RMW=cyclonedds` selects the ROS communication middleware,
-and `ROS_DOMAIN_ID=42` selects the ROS domain. Keep the same values for services
-that must communicate. Dockerfiles still use `ROS_DISTRO` internally.
+The `xhost` command is needed once per desktop session for GUI access:
+```sh
+xhost +si:localuser:root
+```
 
-For Zenoh, set `RMW=zenoh` and replace `compose.cyclonedds.yaml` with
-`compose.zenoh.yaml` in the `.env` file's `COMPOSE_FILE` value.
+
+`compose.gui.yaml` passes the display and graphics devices to the containers; omitting it can cause RViz to exit with a Qt `xcb` error. (That was the issue on 2.10.26 since it wasnt specified in the documentation).
+
 
 ### Temporary overrides and precedence
 
@@ -124,11 +158,7 @@ These files are in `curtmini_piper_containers/`:
 | `compose.workspace.yaml` | Adds `workspace-builder` and makes simulation clients use its shared installation. |
 | `compose.gui.yaml` | Includes display and graphics settings for Gazebo and RViz. |
 
-An overlay is simply a Compose file that adds to or changes the selected
-configuration. `compose.cyclonedds.yaml` is not the complete service definition
-or a list of everything to start. Its service names identify which services
-receive CycloneDDS settings. `workspace-builder`, for example, is defined in
-the workspace file and does not need those runtime communication settings.
+An overlay is simply a Compose file that adds to or changes the selected configuration.
 
 The project GUI file includes `curtmini_piper/compose.gui.yaml`, which collects
 the MoveIt and navigation packages' GUI settings, plus the simulator's GUI file.
@@ -136,6 +166,7 @@ Keep the project GUI overlay selected when opening Gazebo or RViz. These files
 provide display access; they do not start additional services on their own.
 
 Choose services by name, such as `docker compose up gz-sim moveit-rviz-sim`.
+
 Including a file does not start every service listed in it. See
 [Which service should I use?](../../startup/services.md) for their roles.
 
@@ -143,7 +174,7 @@ Including a file does not start every service listed in it. See
 
 There are three layers:
 
-1. **Package:** its Dockerfile describes how to build an image; its Compose file
+1. **ROS Packages:** its Dockerfile describes how to build an image; its Compose file
    defines services that use it.
 2. **Robot repository:** `curtmini_piper/compose.yaml` includes the package service
    definitions. Its `compose.gui.yaml` collects their optional display settings.
