@@ -38,23 +38,39 @@ xhost +si:localuser:root
 docker compose up --build gz-sim moveit-rviz-sim
 ```
 
-The current containers run as root, so the X11 rule names `root`. GUI Compose
-settings pass `DISPLAY`, the X11 socket, and `/dev/dri` to the containers. Without
-`compose.gui.yaml`, RViz cannot connect to the display and exits with a Qt `xcb`
-error. The `.env` configuration above already includes the GUI file.
 
-`curtmini_piper_map` is the office world. Use `SIM_WORLD=curtmini_piper` for the
-simple ground-plane world, either in `.env` or before a command. The simulation
-starts Gazebo, the robot controllers, and MoveIt; the separate RViz service displays them.
+### About SIM_WORLD
+
+`curtmini_piper_map` is the office world. 
+
+Use `SIM_WORLD=curtmini_piper` for the simple ground-plane world, either in `.env` or before a command:
+```sh
+SIM_WORLD=curtmini_piper docker compose up --build gz-sim moveit-rviz-sim
+```
+
+To load a world from `neo_gz_worlds`, use its name without a path, for example
+`SIM_WORLD=neo_workshop` in the same command. 
+
+Other choices include:
+- `neo_office_empty`
+- `neo_workshop_2`
+- `office_harmonic_02`.
+
+The Neo world files do not load the sensor systems used by the simulator's own worlds, so
+lidar, camera, and IMU data may be unavailable in them.
+
+### Service gz-sim
+
+The simulation starts Gazebo, the robot controllers, and MoveIt.
+
+### Service moveit-rviz-sim
+It display them.
+
 The two simulated cameras are enabled by default. RViz includes their color
 and depth views when the simulator image contains the camera implementation;
 see [Cameras](cameras.md) for topics and mount transforms.
 
-To load a world from `neo_gz_worlds`, use its name without a path, for example
-`SIM_WORLD=neo_workshop` in the same command. Other choices include
-`neo_office_empty`, `neo_workshop_2`, and `office_harmonic_02`. The Neo world
-files do not load the sensor systems used by the simulator's own worlds, so
-lidar, camera, and IMU data may be unavailable in them.
+
 
 ## Starting pose and joint positions
 
@@ -98,7 +114,7 @@ executing a motion. The simulator's `config/moveit_controllers.yaml` sets
 MoveIt's trajectory start-position check. MoveIt still needs current joint
 states from the broadcaster.
 
-## Terminal 2: Keyboard teleop
+## Terminal 2: Moving the base: Keyboard teleop
 
 After the robot has spawned, using the same terminal setup:
 
@@ -106,8 +122,15 @@ After the robot has spawned, using the same terminal setup:
 docker compose run --rm --build keyboard-teleop-sim
 ```
 
-Keep this terminal focused: `i` drives forward, `,` backward, `j`/`l` turn, and
-`k` stops. See the [MoveItPy guide](moveitpy.md) for motion examples. RViz is
+Keep this terminal focused: 
+- `i` drives forward, 
+- `,` backward
+-  `j`/`l` turn
+- `k` stops. 
+- 
+
+## Terminal 3: Moving the arm : MoveitPy (python) or MoveGroupInterface (C++)
+See the [MoveItPy guide](moveitpy.md) for motion examples. RViz is
 already running from terminal 1, so you do not need to start another instance.
 
 ## Stop
@@ -117,4 +140,25 @@ in terminal 1 to stop Gazebo and RViz. Alternatively, from a configured terminal
 
 ```sh
 docker compose stop gz-sim moveit-rviz-sim
+```
+
+
+
+## Running the local workspace (should not be necessary though)
+
+```sh
+# Select the workspace overlay for this terminal.
+export COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
+
+docker compose stop gz-sim moveit-rviz-sim
+
+# Build the development image once; skip if already built.
+docker compose build workspace-builder
+
+# Compile and install your local sources.
+docker compose run --rm workspace-builder
+
+# Start Gazebo and MoveIt RViz using that installation.
+SIM_WORLD=curtmini_piper_map SIM_USE_APRILTAGS=true \
+  docker compose up gz-sim moveit-rviz-sim
 ```
