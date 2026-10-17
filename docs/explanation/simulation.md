@@ -2,6 +2,27 @@
 
 For commands, see [simulation startup](../startup/simulation/bringup.md).
 
+## Gazebo real-time factor
+
+The percentage at Gazebo's bottom right is the **real-time factor**: simulation time divided by elapsed real time, expressed as a percentage.
+
+```{figure} ../_static/simulation/gz-sim_real_time_factor.png
+:alt: Gazebo window with the real-time factor of 13.95 percent highlighted at the bottom right
+:width: 100%
+
+The highlighted 13.95% means the simulation runs about seven times slower than real time.
+```
+
+| Factor | Meaning |
+| --- | --- |
+| 100% | One simulated second takes one real second. |
+| 50% | One simulated second takes two real seconds. |
+| 20% | One simulated second takes five real seconds. |
+
+A low factor slows the whole simulation. If the factor is near 100% but the robot moves slowly, check its commanded speed and motion limits instead.
+
+CPU load, physics, sensor generation, and rendering all affect performance. On hosts with NVIDIA graphics, check [Gazebo GPU selection](compose_project/environment.md#gazebo-gpu-selection); GPU selection alone does not guarantee real-time speed.
+
 ## Worlds
 
 `curtmini_piper_map` is the office world.
