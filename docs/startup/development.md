@@ -27,7 +27,7 @@ CURTMINI_PIPER_IMAGE_SOURCE="$(realpath ../rob4_fraunhofer_ws/src/curtmini_piper
   docker compose build piper-bringup moveit-rviz-hardware
 ```
 
-Replace the service names with the robot images you need. This builds images without starting hardware. After [hardware preparation](real_hardware.md#prepare-can-and-gui-access), start these built images without `--build`:
+Replace the service names with the robot images you need. This builds images without starting hardware. After [hardware preparation](hardware/bringup.md#prepare-can-and-gui-access), start these built images without `--build`:
 
 ```sh
 docker compose up piper-bringup moveit-rviz-hardware

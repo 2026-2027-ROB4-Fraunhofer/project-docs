@@ -1,8 +1,8 @@
-# Real hardware
+# Hardware startup
 
-The full robot deployment is not complete. These commands start the available arm, base and camera components; real-robot mapping and navigation remain planned. See [deployment architecture](../explanation/compose_project/system_deployment_architecture.md#proposed-real-robot-architecture).
+The full robot deployment is not complete. These commands start the available arm, base and camera components; real-robot mapping and navigation remain planned. See [deployment architecture](../../explanation/compose_project/system_deployment_architecture.md#proposed-real-robot-architecture).
 
-Complete [Docker installation](../installation/software/docker.md) first.
+Complete [Docker installation](../../installation/software/docker.md) first.
 In each terminal, run commands from:
 
 ```sh
@@ -19,7 +19,7 @@ ip -details -statistics link show can0
 xhost +si:localuser:root
 ```
 
-Confirm the interface is up. Check that the base's configured IMU and joystick devices exist before starting `base-bringup`; see [hardware settings](../explanation/compose_project/environment.md#hardware-settings).
+Confirm the interface is up. Check that the base's configured IMU and joystick devices exist before starting `base-bringup`; see [hardware settings](../../explanation/compose_project/environment.md#hardware-settings).
 
 ## Start the arm
 
@@ -37,13 +37,15 @@ Use this command instead of the arm-only command:
 docker compose up --build base-bringup piper-bringup moveit-rviz-hardware
 ```
 
-For the base alone:
+## Start the base
+
+Check the configured IMU and joystick devices from [hardware settings](../../explanation/compose_project/environment.md#hardware-settings). Arm CAN preparation is only needed when also starting the Piper. For the base alone:
 
 ```sh
 PUBLISH_BASE_DESCRIPTION=True docker compose up --build base-bringup
 ```
 
-To add the cameras, follow [Cameras](cameras.md#physical-cameras). Use [teleoperation](teleoperation.md#hardware) for manual base driving, or [MoveItPy](moveitpy.md) and [C++](moveit_cpp.md) for arm goals.
+To add the cameras, follow [Cameras](perception/cameras.md#configure-the-cameras). Use [teleoperation](navigation/teleoperation.md#drive) for manual base driving, or start with [MoveIt in RViz](manipulation/moveit_gui.md) before [MoveItPy](manipulation/moveitpy.md) and [C++](manipulation/moveit_cpp.md) for arm goals.
 
 ## Stop
 
@@ -53,11 +55,11 @@ Stop teleoperation and finish or cancel active motion tasks before stopping the 
 docker compose stop base-bringup piper-bringup moveit-rviz-hardware
 ```
 
-If cameras are running, stop them using the [camera walkthrough](cameras.md#stop).
+If cameras are running, stop them using the [camera walkthrough](perception/cameras.md#stop).
 
 ## Native source alternative
 
-After [source installation](../installation/software/source.md), run:
+After [source installation](../../installation/software/source.md), run:
 
 ```sh
 cd ~/ROB4_Fraunhofer/rob4_fraunhofer_ws
@@ -78,4 +80,4 @@ For the base alone, omit `publish_robot_description:=False`. For hardware-free a
 ros2 launch curtmini_piper_bringup bringup.launch.py start_arm_hardware:=false
 ```
 
-Stop native launches with Ctrl+C. See [MoveIt and driver behavior](../explanation/moveit.md#hardware-command-path) for `control_enabled` and `fast_mode`, and [development workflows](development.md) to refresh hardware images.
+Stop native launches with Ctrl+C. See [MoveIt and driver behavior](../../explanation/moveit.md#hardware-command-path) for `control_enabled` and `fast_mode`, and [development workflows](../development.md) to refresh hardware images.

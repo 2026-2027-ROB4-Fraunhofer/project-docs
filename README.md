@@ -3,7 +3,7 @@
 Project documentation for the Curt Mini mobile base, AgileX Piper arm, Gazebo simulation and supporting tools.
 
 - [Installation](docs/installation/index.md): workspace, Docker, native ROS 2 and hardware setup.
-- [Startup and walkthrough](docs/startup/index.md): start available components and run a specific task.
+- [Startup and walkthrough](docs/startup/index.md): choose [Simulation](docs/startup/simulation/index.md) or [Real hardware](docs/startup/hardware/index.md), then Navigation, Manipulation or Perception.
 - [Explanation](docs/explanation/index.md): project architecture, Compose, Nav2, MoveIt and sensors.
 - [Helpers](docs/helpers/index.md): general Git, Docker and ROS 2 guidance.
 

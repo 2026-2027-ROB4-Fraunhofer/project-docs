@@ -64,12 +64,12 @@ in a Compose file does not mean you must start it for every task.
 **MoveIt controls arm motion; Nav2 controls mobile-base navigation.** Choose
 the RViz service that matches your task.
 
-See [simulation startup](../../startup/simulation.md) and [keyboard driving](../../startup/teleoperation.md).
-The [camera walkthrough](../../startup/cameras.md) covers image startup; [camera configuration](../cameras.md) explains mounts and TF.
-The [mapping walkthrough](../../startup/mapping.md) covers saving a map; [navigation](../../startup/navigation.md) covers switching to AMCL and sending goals. Mapping and AMCL must not run together because
+See [simulation startup](../../startup/simulation/bringup.md) and [keyboard driving](../../startup/simulation/navigation/teleoperation.md).
+The [camera walkthrough](../../startup/simulation/perception/cameras.md) covers image startup; [camera configuration](../cameras.md) explains mounts and TF.
+The [mapping walkthrough](../../startup/simulation/navigation/mapping.md) covers saving a map; [navigation](../../startup/simulation/navigation/navigation.md) covers switching to AMCL and sending goals. Mapping and AMCL must not run together because
 both publish the `map → odom` transform. Stop keyboard driving before Nav2
 drives because both send commands to the base.
-See [tag poses](../../startup/tag_pose.md) and [Python Nav2 goals](../../startup/nav2_python.md) for scripted tasks.
+See [tag poses](../../startup/simulation/perception/tag_pose.md) and [Python Nav2 goals](../../startup/simulation/navigation/nav2_python.md) for scripted tasks.
 
 ## Real robot
 
@@ -108,8 +108,8 @@ See [tag poses](../../startup/tag_pose.md) and [Python Nav2 goals](../../startup
 ```
 
 Start `piper-bringup` for the arm, and add `base-bringup` when driving the base. Follow the
-[hardware guide](../../startup/real_hardware.md) for CAN setup and startup commands.
-The two RealSense services can run separately; see [Cameras](../../startup/cameras.md) for
+[hardware guide](../../startup/hardware/bringup.md) for CAN setup and startup commands.
+The two RealSense services can run separately; see [hardware cameras](../../startup/hardware/perception/cameras.md) for
 serial numbers and measured mount poses.
 For example, after preparing the arm and GUI access:
 

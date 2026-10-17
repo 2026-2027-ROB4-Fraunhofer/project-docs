@@ -14,7 +14,7 @@ flowchart LR
     saver --> maps["Host maps/: YAML and image"]
 ```
 
-SLAM supplies `map → odom`; the simulated controller supplies `odom → base_link`. Manual driving provides the views needed to build the map. See [mapping](../../startup/mapping.md).
+SLAM supplies `map → odom`; the simulated controller supplies `odom → base_link`. Manual driving provides the views needed to build the map. See [mapping](../../startup/simulation/navigation/mapping.md).
 
 ## Simulation: navigation
 
@@ -28,7 +28,7 @@ flowchart LR
     nav -->|"map, localization, path"| rviz
 ```
 
-AMCL replaces SLAM as the `map → odom` publisher. Stop mapping and keyboard driving before Nav2 drives. See [navigation](../../startup/navigation.md).
+AMCL replaces SLAM as the `map → odom` publisher. Stop mapping and keyboard driving before Nav2 drives. See [navigation](../../startup/simulation/navigation/navigation.md).
 
 ## Simulation: arm control
 

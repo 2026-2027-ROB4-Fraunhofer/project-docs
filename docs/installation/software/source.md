@@ -72,5 +72,5 @@ source install/setup.bash
 ```
 
 `curtmini_piper_sensors` provides the two physical D435i launch instances.
-See [Cameras](../../startup/cameras.md) for their serial numbers and measured
+See [Cameras](../../startup/hardware/perception/cameras.md) for their serial numbers and measured
 mount offsets.

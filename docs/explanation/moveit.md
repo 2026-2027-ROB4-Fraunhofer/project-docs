@@ -2,6 +2,8 @@
 
 MoveIt plans arm trajectories; Nav2 controls the mobile base. The examples live in `curtmini_piper_tools`, while robot configuration and bringup live in `curtmini_piper`.
 
+Start with the MoveIt GUI walkthrough for [simulation](../startup/simulation/manipulation/moveit_gui.md) or [hardware](../startup/hardware/manipulation/moveit_gui.md).
+
 ## Interfaces in this project
 
 | Package | Command | Role |
@@ -44,7 +46,7 @@ Edit `curtmini_piper_moveitpy_example/config/goal.yaml` in the tools checkout. C
 The relative TCP goal is transformed into `base_link` using the current robot state. It is a pose target, not a guarantee of a straight Cartesian path.
 The code logs `Execution command finished` after `execute()` returns; that log alone is not a measurement of physical goal accuracy.
 
-See [MoveItPy walkthrough](../startup/moveitpy.md) for commands.
+See the MoveItPy walkthrough for [simulation](../startup/simulation/manipulation/moveitpy.md) or [hardware](../startup/hardware/manipulation/moveitpy.md).
 
 ## C++ action client
 
@@ -55,14 +57,14 @@ The default Compose services run this joint-goal executable with `config/goal.ya
 
 The request uses the current state, the configured pipeline/planner, five seconds of planning time, and velocity/acceleration scaling of 0.1. Success requires both a successful action result and MoveIt's success error code.
 
-See [C++ walkthrough](../startup/moveit_cpp.md) for commands.
+See the C++ walkthrough for [simulation](../startup/simulation/manipulation/moveit_cpp.md) or [hardware](../startup/hardware/manipulation/moveit_cpp.md).
 
 ## Planning versus execution
 
 `MOVEIT_PLAN_ONLY=true` is the Compose default for both clients. A command prefix overrides `.env` for that invocation. `MOVEIT_PLAN_ONLY=false` requests execution, including on real hardware.
 Compose supplies `controller_mode` and `use_sim_time` for the Python client and `use_sim_time` for the C++ client. Keep model geometry, ROS domain and middleware consistent with the backend.
 
-RViz is a separate client of the running MoveIt backend. Simulation startup already launches it; see [standalone RViz](../startup/rviz.md) when another window is needed.
+RViz is a separate client of the running MoveIt backend. Simulation startup already launches it; see [standalone RViz](../startup/simulation/rviz.md) when another window is needed.
 
 ## Hardware command path
 
@@ -92,4 +94,4 @@ With `control_enabled:=false`, bringup launches `piper_control_gate`, which enab
 
 The driver's joint-state callback uses `move_js` to stream joint setpoints when `fast_mode=true`, and `move_j` when false. The project Compose service defaults to true. This selects how commands are sent to the arm; it does not change the planning interface.
 
-For CAN setup and launch commands, see [real hardware](../startup/real_hardware.md).
+For CAN setup and launch commands, see [real hardware](../startup/hardware/bringup.md).

@@ -35,7 +35,7 @@ If you use docker -which I recommend-, you don't need to install ROS 2 or any to
 
 Docker compopse lets you define and start multiple Docker containers together using one configuration file.
 
-This project's [camera guide](../../startup/cameras.md) shows how to start both
+This project's [hardware camera guide](../../startup/hardware/perception/cameras.md) shows how to start both
 RealSense services. The following are generic container examples:
 
 - [Dockerfile](https://github.com/ipa-may/docker_ros2_tutorial/blob/main/03_ros2_realsense/Dockerfile-jazzy-realsense) (to build a docker image)
@@ -74,4 +74,3 @@ As you wish, but I suppose python is simpler.
 - official [ROS 2 documentation](https://docs.ros.org/en/jazzy/index.html)
 
 - [Nav2 documentation](https://docs.nav2.org/jazzy/)
-

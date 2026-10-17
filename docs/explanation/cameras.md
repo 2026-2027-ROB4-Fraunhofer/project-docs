@@ -43,7 +43,7 @@ bind-mounted, so the sensor image does not need rebuilding for pose changes.
 
 `SIM_USE_CAMERAS=false` disables the Gazebo camera sensors and their camera TF publishers. The simulator worlds include the sensor systems needed for images and IMU; other worlds may need these systems added.
 
-See [camera startup](../startup/cameras.md) for commands and stream checks, and [image builds](compose_project/image_builds.md#robot-geometry-in-the-simulator-image) for restart versus rebuild behavior.
+See camera startup for [simulation](../startup/simulation/perception/cameras.md) or [hardware](../startup/hardware/perception/cameras.md) for commands and stream checks, and [image builds](compose_project/image_builds.md#robot-geometry-in-the-simulator-image) for restart versus rebuild behavior.
 
 ## Robot mount and TCP offsets
 
@@ -56,7 +56,7 @@ upstream `main`. For unpublished local URDF changes, use
 [local workspace development](../startup/development.md#local-workspace-development).
 Physical camera TF offsets are separate, in
 `curtmini_piper_sensors/config/camera_mounts.yaml`, and must be measured on the
-robot. See [Cameras](../startup/cameras.md).
+robot. See [hardware cameras](../startup/hardware/perception/cameras.md).
 
 If only the lidar's position or orientation changes, update
 `lidar_mount_on_base` in `geometry.yaml` and verify that `/scan` aligns with

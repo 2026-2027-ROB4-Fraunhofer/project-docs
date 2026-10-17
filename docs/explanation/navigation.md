@@ -47,7 +47,7 @@ This is a 2D lidar setup and does not provide full 3D arm clearance checking.
 
 ## Saved maps
 
-The [mapping walkthrough](../startup/mapping.md#save-the-map) creates `map.yaml` and `map.pgm` in `rob4_fraunhofer_ws/src/curtmini_piper/curtmini_piper_navigation/maps/` on
+The [mapping walkthrough](../startup/simulation/navigation/mapping.md#save-the-map) creates `map.yaml` and `map.pgm` in `rob4_fraunhofer_ws/src/curtmini_piper/curtmini_piper_navigation/maps/` on
 your host. `/maps` inside the container is a bind mount of that directory.
 The files may be owned by root because the containers run as root.
 The YAML records the image filename, map resolution and map origin. Keep both
@@ -71,6 +71,6 @@ The navigation services bind-mount the local `config/` directory. Restart affect
 
 Mapping and AMCL both publish `map → odom`; run one at a time. Keyboard teleoperation and Nav2 both command the simulated base; stop teleoperation before navigation.
 
-See [mapping](../startup/mapping.md), [navigation](../startup/navigation.md), and [Python goals](../startup/nav2_python.md) for commands.
+See [mapping](../startup/simulation/navigation/mapping.md), [navigation](../startup/simulation/navigation/navigation.md), and [Python goals](../startup/simulation/navigation/nav2_python.md) for commands.
 
 References: [Nav2 setup guide](https://docs.nav2.org/setup_guides/index.html) and [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox).

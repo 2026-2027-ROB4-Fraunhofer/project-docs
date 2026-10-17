@@ -20,6 +20,6 @@ The combined model prefixes Piper links and joints with `piper_`. Set the arm,
 TCP, lidar, and simulated camera mounts in
 `curtmini_piper_description/config/geometry.yaml`. Set measured physical camera
 mounts in `curtmini_piper_sensors/config/camera_mounts.yaml`; see the
-[camera guide](../startup/cameras.md).
+[camera configuration](cameras.md).
 The simulation's starting base pose and six arm joint positions are separate
 settings in `curtmini_piper_gz_sim/config/initial_state.yaml`.

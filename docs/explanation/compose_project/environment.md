@@ -31,8 +31,8 @@ SIM_USE_HOKUYO=true
 SIM_USE_CAMERAS=true
 SIM_USE_APRILTAGS=false
 
-# Compose overlays
-COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
+# Compose overlays (the template enables NVIDIA for Gazebo)
+COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml:compose.nvidia.yaml
 ```
 
 | Variable | What it does | Values |
@@ -58,7 +58,7 @@ rebuild the image, and set `SIM_WORLD` to its filename without `.sdf`.
 The office world above is useful for navigation; the template initially selects
 the simpler `curtmini_piper` world. To make a useful map, change the **actual**
 `.env` file to `SIM_WORLD=curtmini_piper_map`, or use the explicit world override
-in the [mapping walkthrough](../../startup/mapping.md#start-mapping).
+in the [mapping walkthrough](../../startup/simulation/navigation/mapping.md#start-mapping).
 
 ## About COMPOSE_FILE env variable
 `COMPOSE_FILE` lists the files to combine, in order, separated by colons on Linux. Choose one active `COMPOSE_FILE` line:
@@ -84,6 +84,16 @@ docker compose up --build piper-bringup moveit-rviz-hardware
 ```
 
 The selected overlays apply to each command run from this directory.
+
+## Gazebo GPU selection
+
+Append `:compose.nvidia.yaml` to either workflow above to select NVIDIA for **`gz-sim` only**; RViz and other services are unchanged. Retain this suffix when adding `compose.workspace.yaml` for development. Remove it for normal host graphics selection. See [prerequisites and the two choices](../../installation/software/docker.md#select-gazebo-graphics).
+
+After switching, stop active simulation tasks and recreate Gazebo (this resets the simulation). Preserve task-specific settings in `.env` or command prefixes:
+
+```sh
+docker compose up -d --no-deps --force-recreate gz-sim
+```
 
 ## On GUI access
 
@@ -116,6 +126,8 @@ to it. For example, this command explicitly selects the regular GUI setup:
 docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
   up --build gz-sim moveit-rviz-sim
 ```
+
+For NVIDIA, append `-f compose.nvidia.yaml` to the file options above, or omit all `-f` options to use `.env`.
 
 See Docker's [`.env` explanation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/)
 and [COMPOSE_FILE reference](https://docs.docker.com/compose/how-tos/environment-variables/envvars/#compose_file).
@@ -152,7 +164,7 @@ robot images; that is controlled by `CURTMINI_PIPER_IMAGE_SOURCE`; see [image so
 | `JOYSTICK_DEVICE` | Base joystick device; default `/dev/input/js0` |
 | `BASE_CAMERA_SERIAL`, `TOOL_CAMERA_SERIAL` | Distinct physical camera serial numbers |
 
-Set device paths to match the hardware host. See [hardware startup](../../startup/real_hardware.md) and [arm command behavior](../moveit.md#hardware-command-path).
+Set device paths to match the hardware host. See [hardware startup](../../startup/hardware/bringup.md) and [arm command behavior](../moveit.md#hardware-command-path).
 
 ## Task settings
 

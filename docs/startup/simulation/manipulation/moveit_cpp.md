@@ -1,8 +1,11 @@
 # Moving the arm with the C++ MoveIt client
 
-Start [simulation](simulation.md) or [hardware bringup](real_hardware.md) first.
+## Prerequisites
 
-Complete [Docker installation](../installation/software/docker.md) first.
+- Complete [Docker installation](../../../installation/software/docker.md).
+- Start MoveIt through the [first arm motion walkthrough](moveit_gui.md#start-moveit-and-rviz).
+- Keep the backend running and finish any previous arm motion before sending a new goal.
+
 In each terminal, run commands from:
 
 ```sh
@@ -33,10 +36,9 @@ MOVEIT_PLAN_ONLY=false docker compose run --rm --build moveit-action-client-sim
 ```
 
 The simulated arm should move to the requested joint goal.
-For hardware, use `moveit-action-client-hardware`; `MOVEIT_PLAN_ONLY=false` commands the real arm.
 
 ## Finish
 
 The client exits when the action completes. Finish the motion request before stopping the backend through its startup page. Closing the client is not a documented motion-cancellation mechanism.
 
-See [C++ action interface](../explanation/moveit.md#c-action-client) for the direct action client and the separate pose examples.
+See [C++ action interface](../../../explanation/moveit.md#c-action-client) for the direct action client and the separate pose examples.

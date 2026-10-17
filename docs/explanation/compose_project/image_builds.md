@@ -42,7 +42,7 @@ changing mount values in that YAML; no image rebuild is needed for those values.
 The simulator also publishes the camera mount TFs from the same geometry file.
 Physical camera mount TFs use the separate, measured
 `curtmini_piper_sensors/config/camera_mounts.yaml`.
-See [Cameras](../../startup/cameras.md) for the two setups.
+See camera startup for [simulation](../../startup/simulation/perception/cameras.md) or [hardware](../../startup/hardware/perception/cameras.md).
 
 Changes to URDF, launch, bridge, or controller code require updating upstream
 `main` and rebuilding the regular image. The local workspace workflow can test
@@ -64,8 +64,8 @@ docker compose build --no-cache gz-sim
 
 For published navigation package changes, use `mapping-sim` in place of
 `gz-sim`; the navigation services share its image. Then recreate the affected
-services with the commands in the [simulation guide](../../startup/simulation.md)
-or [navigation guide](../../startup/navigation.md).
+services with the commands in the [simulation guide](../../startup/simulation/bringup.md)
+or [navigation guide](../../startup/simulation/navigation/navigation.md).
 
 ## Choose a source workflow
 

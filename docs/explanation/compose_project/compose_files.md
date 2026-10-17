@@ -11,6 +11,7 @@ These files are in `curtmini_piper_containers/`:
 | `compose.zenoh.yaml` | Alternative communication setup using Zenoh; also defines `zenoh-router`. |
 | `compose.workspace.yaml` | Adds `workspace-builder` and makes simulation clients use its shared installation. |
 | `compose.gui.yaml` | Includes display and graphics settings for Gazebo and RViz. |
+| `compose.nvidia.yaml` | Selects NVIDIA GPU access and rendering for `gz-sim` only; append after the GUI overlay. |
 
 An overlay is simply a Compose file that adds to or changes the selected configuration.
 

@@ -1,8 +1,11 @@
 # Moving the arm with MoveItPy
 
-Start [simulation](simulation.md) or [hardware bringup](real_hardware.md) first.
+## Prerequisites
 
-Complete [Docker installation](../installation/software/docker.md) first.
+- Complete [Docker installation](../../../installation/software/docker.md).
+- Start MoveIt through the [first arm motion walkthrough](moveit_gui.md#start-moveit-and-rviz).
+- Keep the backend running and finish any previous arm motion before sending a new goal.
+
 In each terminal, run commands from:
 
 ```sh
@@ -19,9 +22,9 @@ docker compose build moveit-rviz-sim
 
 The simulation and hardware RViz services share this image. Building it does not start RViz.
 
-## Plan in simulation
+## Plan
 
-Optionally edit `curtmini_piper_tools/curtmini_piper_moveitpy_example/config/goal.yaml` for your goal. See [goal parameters](../explanation/moveit.md#goal-parameters).
+Optionally edit `curtmini_piper_tools/curtmini_piper_moveitpy_example/config/goal.yaml` for your goal. See [goal parameters](../../../explanation/moveit.md#goal-parameters).
 
 ```sh
 MOVEIT_PLAN_ONLY=true docker compose run --rm --build moveitpy-sim
@@ -29,17 +32,13 @@ MOVEIT_PLAN_ONLY=true docker compose run --rm --build moveitpy-sim
 
 Look for `Planning succeeded`. The arm should stay still in plan-only mode.
 
-## Execute in simulation
+## Execute
 
 ```sh
 MOVEIT_PLAN_ONLY=false docker compose run --rm --build moveitpy-sim
 ```
 
 The simulated arm should follow the trajectory. The example exits after its request finishes.
-
-## Hardware
-
-Use `moveitpy-hardware` in place of `moveitpy-sim` with the hardware backend running. Start with `MOVEIT_PLAN_ONLY=true`; setting it to `false` commands the real arm.
 
 ## Native source alternative
 
@@ -50,10 +49,10 @@ ros2 run curtmini_piper_moveitpy_example moveit_goal --ros-args \
   -p controller_mode:=simulation -p use_sim_time:=true -p plan_only:=true
 ```
 
-Set `plan_only:=false` to execute. For hardware use `controller_mode:=hardware` and `use_sim_time:=false`.
+Set `plan_only:=false` to execute.
 
 ## Finish
 
 Let the one-shot request complete before stopping the backend through its startup page. Closing the client is not a documented motion-cancellation mechanism.
 
-See [MoveIt APIs and arm control](../explanation/moveit.md) for planning, execution and controller details.
+See [MoveIt APIs and arm control](../../../explanation/moveit.md) for planning, execution and controller details.

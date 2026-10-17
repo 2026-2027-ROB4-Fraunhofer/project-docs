@@ -40,4 +40,4 @@ successful run should stop roughly 0.6–1.0 m from the requested tag, facing
 it, while keeping the tag visible. You may use the existing Nav2 setup or
 another controller to reach that pose.
 
-For commands, see [finding AprilTags](../startup/apriltags.md), [observing a tag in the map](../startup/tag_pose.md), and [sending a Nav2 goal](../startup/nav2_python.md).
+For commands, see [finding AprilTags](../startup/simulation/perception/apriltags.md), [observing a tag in the map](../startup/simulation/perception/tag_pose.md), and [sending a Nav2 goal](../startup/simulation/navigation/nav2_python.md).

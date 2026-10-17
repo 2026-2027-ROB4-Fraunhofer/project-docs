@@ -31,5 +31,5 @@ html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "version_selector": False,
     "collapse_navigation": False,
-    "navigation_depth": 4,
+    "navigation_depth": 5,
 }

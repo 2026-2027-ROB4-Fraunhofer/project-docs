@@ -1,6 +1,6 @@
 # Simulation configuration
 
-For commands, see [simulation startup](../startup/simulation.md).
+For commands, see [simulation startup](../startup/simulation/bringup.md).
 
 ## Worlds
 

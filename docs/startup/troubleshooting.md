@@ -37,7 +37,7 @@ All three controllers should be active. If `joint_state_broadcaster` is inactive
 
 - **Gazebo shows only a ground plane:** `curtmini_piper` is the simple world.
   Set `SIM_WORLD=curtmini_piper_map` in the actual `.env` file, then rerun the
-  [mapping startup command](mapping.md#start-mapping). The one-command prefix also selects it.
+  [mapping startup command](simulation/navigation/mapping.md#start-mapping). The one-command prefix also selects it.
 - **Map does not exist:** save a map first and check `maps/map.yaml`, or set
   `NAV2_MAP` to the saved YAML filename.
 - **RViz has no `map` frame during localization:** provide a 2D Pose Estimate.

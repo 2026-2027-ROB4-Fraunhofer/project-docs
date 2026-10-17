@@ -1,8 +1,10 @@
 # Sending a Nav2 goal from Python
 
+## Prerequisites
+
 Start [navigation](navigation.md) and initialize AMCL in RViz first. Exit keyboard teleoperation before sending a goal.
 
-Complete [Docker installation](../installation/software/docker.md) first.
+Complete [Docker installation](../../../installation/software/docker.md) first.
 In each terminal, run commands from:
 
 ```sh
@@ -50,4 +52,4 @@ docker compose exec nav2-sim /opt/container/ros_entrypoint.sh \
 
 The empty request asks Nav2 to cancel all current NavigateToPose goals.
 
-See [navigation interfaces](../explanation/navigation.md#how-the-pieces-connect) for the action, topics and TF requirements.
+See [navigation interfaces](../../../explanation/navigation.md#how-the-pieces-connect) for the action, topics and TF requirements.
