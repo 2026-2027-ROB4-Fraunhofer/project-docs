@@ -1,11 +1,11 @@
-# Which service should I use?
+# Compose Services
 
 A **Compose service** is a named program setup, such as `gz-sim`. Compose uses
 it to create a container with the right image, startup command and settings.
 One service can start several ROS nodes.
 
 Configure `curtmini_piper_containers/.env` first using the
-[Docker setup](../installation/software/docker.md#configure-once-with-env).
+[Docker setup](../../installation/software/docker.md#configure-once-with-env).
 Run the commands below from that directory. Compose reads `.env` automatically,
 including the `COMPOSE_FILE` list, so you can choose services by name:
 
@@ -33,11 +33,11 @@ in a Compose file does not mean you must start it for every task.
   - Opens RViz with the MoveIt panel, camera views, and robot TF.
   - Use with `gz-sim` when working on arm motion. It does not start Gazebo itself.
 * - `moveitpy-sim`
-  - Runs a Python example that asks MoveIt to plan an arm motion; execution is optional.
+  - Runs a Python example with its own MoveItPy planning instance; execution is optional.
   - Use with `gz-sim` for scripted arm motion. `MOVEIT_PLAN_ONLY=true` is the default.
 * - `moveit-action-client-sim`
   - Runs a C++ client that sends an arm goal to Gazebo's MoveIt server.
-  - Use with `gz-sim` for joint, absolute TCP, or relative TCP goals. It plans only by default.
+  - Use with `gz-sim` for joint goals. Separate pose examples are available in the tools package; the default service plans only.
 * - `keyboard-teleop-sim`
   - Turns keyboard input into mobile-base velocity commands.
   - Use with `gz-sim` to drive manually, including while making a map.
@@ -50,6 +50,9 @@ in a Compose file does not mean you must start it for every task.
 * - `nav2-rviz-sim`
   - Opens RViz with the map, lidar, path, initial-pose and navigation-goal tools.
   - Use during mapping or navigation. It does not start SLAM or Nav2 itself.
+* - `apriltag-base`
+  - Detects tags in the base camera image and publishes detections and tag transforms.
+  - Use with the simulated or physical base camera; match the detector size to the tags.
 * - `tag-pose-sim`
   - Publishes a fresh observed AprilTag pose in `map` using the camera and robot TF chain.
   - Use with `apriltag-base` and either mapping or Nav2 localization.
@@ -61,13 +64,12 @@ in a Compose file does not mean you must start it for every task.
 **MoveIt controls arm motion; Nav2 controls mobile-base navigation.** Choose
 the RViz service that matches your task.
 
-The [simulation guide](simulation.md) covers Gazebo and keyboard driving.
-The [camera guide](cameras.md) covers simulated images, mounts, and TF.
-The [navigation guide](navigation.md) covers saving a map, switching from SLAM
-to AMCL, and sending goal poses. Mapping and AMCL must not run together because
+See [simulation startup](../../startup/simulation.md) and [keyboard driving](../../startup/teleoperation.md).
+The [camera walkthrough](../../startup/cameras.md) covers image startup; [camera configuration](../cameras.md) explains mounts and TF.
+The [mapping walkthrough](../../startup/mapping.md) covers saving a map; [navigation](../../startup/navigation.md) covers switching to AMCL and sending goals. Mapping and AMCL must not run together because
 both publish the `map → odom` transform. Stop keyboard driving before Nav2
 drives because both send commands to the base.
-See [Python tools](tools.md) for tag poses and scripted Nav2 goals.
+See [tag poses](../../startup/tag_pose.md) and [Python Nav2 goals](../../startup/nav2_python.md) for scripted tasks.
 
 ## Real robot
 
@@ -106,8 +108,8 @@ See [Python tools](tools.md) for tag poses and scripted Nav2 goals.
 ```
 
 Start `piper-bringup` for the arm, and add `base-bringup` when driving the base. Follow the
-[hardware guide](real_hardware.md) for CAN setup and startup commands.
-The two RealSense services can run separately; see [Cameras](cameras.md) for
+[hardware guide](../../startup/real_hardware.md) for CAN setup and startup commands.
+The two RealSense services can run separately; see [Cameras](../../startup/cameras.md) for
 serial numbers and measured mount poses.
 For example, after preparing the arm and GUI access:
 
@@ -129,7 +131,7 @@ The navigation services currently target simulation.
   - When to use it
 * - `workspace-builder`
   - Builds local simulation, navigation and MoveIt example packages into shared Docker volumes. It excludes hardware bringup and drivers.
-  - Optional: use it to test unpublished local source changes. See the local workspace guide.
+  - Optional: use it to test unpublished local source changes. See [development workflows](../../startup/development.md#local-workspace-development).
 * - `ros-cli`
   - Opens a shell with ROS command-line tools.
   - Inspect nodes, topics, services or actions using the same middleware and domain as the running robot.
@@ -139,7 +141,7 @@ The navigation services currently target simulation.
 ```
 
 For `workspace-builder`, see
-[local workspace development](../installation/software/docker.md#local-workspace-development).
+[local workspace development](../../startup/development.md#local-workspace-development).
 
 You may also see `piper-ros-base`, `piper-description`, and
 `piper-moveit-config` when listing services. They build shared robot images,
@@ -148,48 +150,5 @@ startup creates no containers for them. Compose builds these images when
 another robot image needs them; you do not need to start them manually.
 
 The robot repository also has an optional `compose.test.yaml` for
-[developer build checks](../installation/software/docker.md#optional-developer-checks).
+[developer build checks](../../startup/development.md#optional-developer-checks).
 It is not part of normal startup and does not test physical hardware.
-
-## Why are service names repeated in the CycloneDDS file?
-
-The infrastructure's root `compose.yaml` includes the service definitions from
-the robot, simulator, and tools repositories. The robot root file in turn
-includes its package Compose files. Those definitions specify what each service runs.
-`compose.cyclonedds.yaml` adds the CycloneDDS configuration file and environment
-setting to the application services with matching names.
-
-It therefore lists application services, but it is not the complete catalog:
-`workspace-builder` is added by `compose.workspace.yaml`, and `zenoh-router`
-belongs to the alternative `compose.zenoh.yaml` setup. You choose one middleware
-file in `.env`. See [what the Compose files do](../installation/software/docker.md#what-the-compose-files-do).
-
-## Useful commands
-
-```{list-table}
-:class: command-reference
-:widths: 42 58
-:header-rows: 1
-
-* - Command
-  - Purpose
-* - `docker compose up SERVICE`
-  - Starts a service and shows its logs. Add `--build` when its image needs building.
-* - `docker compose up -d SERVICE`
-  - Starts a service in the background.
-* - `docker compose run --rm SERVICE`
-  - Runs a separate container for a tool, then removes that container when it exits. Useful for the builder and interactive keyboard driving.
-* - `docker compose logs -f SERVICE`
-  - Follows service logs. Ctrl+C stops following the logs, not the service.
-* - `docker compose stop SERVICE`
-  - Stops the named service started with `up`.
-* - `docker compose ps`
-  - Shows the current project's service containers and their status.
-* - `docker compose --profile '*' config --services`
-  - Lists all services in the configuration selected by `.env`, including optional profiles.
-```
-
-Replace `SERVICE` with a name from the tables. Naming a service explicitly
-activates its profile for that command; students do not need to select profiles
-for the startup examples. For `run --rm` keyboard sessions, stop driving and
-exit that terminal session with Ctrl+C.

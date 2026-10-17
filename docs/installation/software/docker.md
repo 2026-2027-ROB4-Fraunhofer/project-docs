@@ -2,383 +2,56 @@
 
 ## Install Docker
 
-Follow Docker's [Ubuntu installation guide](https://docs.docker.com/engine/install/ubuntu/)
-and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
+Follow Docker's [Ubuntu installation guide](https://docs.docker.com/engine/install/ubuntu/) and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/), including the Compose plugin.
+The project images target AMD64 (x86-64). Docker supplies ROS 2; a host ROS installation is not required.
 
-Install the Compose plugin too; use **Docker Compose 2.24.4 or newer** for all
-workflows in this guide. 
-
-The workspace and test overlays use [`!override`](https://docs.docker.com/reference/compose-file/merge/#replace-value), which requires that version. 
-
-Use `docker compose` (with a space), not the legacy `docker-compose` command.
+Check that Compose is version 2.24.4 or newer:
 
 ```sh
 docker compose version
 ```
 
-Docker provides the project's ROS 2 environment without requiring ROS 2 to be installed on the host. You only need an AMD64 (x86-64) computer running a Docker-compatible operating system, with Docker installed. 
+Use `docker compose` with a space. See [Compose files](../../explanation/compose_project/compose_files.md) for the project layout and [Docker cleanup](../../helpers/Tools/docker.md) for disk usage.
 
-The project's container images currently target AMD64 only; ARM support may become a future requirement.
+## Configure once with `.env`
 
-Using docker containers may fill your disk space quite fast. 
-See [Docker cleanup](../../student_helpers/Tools/docker.md) for managing disk usage.
+First [clone the workspace](index.md#create-the-workspace). Then:
 
-## Configure this project
-
-After [cloning the workspace](index.md#create-the-workspace), run Compose commands from the infrastructure repository.
-
-Navigate to the curtmini_piper_containers repo:
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-```
-
-and copy the `.env.example` file into a .env. The next section describes this file
-```sh
 [ -f .env ] || cp .env.example .env
 ```
 
-### Configure once with `.env`
+Edit the actual `.env` file to use these regular-image settings:
 
-We will see how to edit the `curtmini_piper_containers/.env`. 
-
-Docker Compose reads it automatically whenever you run a command from this directory. You do not
-need to run `source .env` or repeat shell exports in every terminal.
-`.env.example` is a template; copy it to `.env` to use its settings.
-
-See official docker documentation on [variable interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/).
-
-In this project, the environment variables are:
-
-```sh
-# .env.example
+```ini
 CONTAINER_ROS_DISTRO=jazzy
 RMW=cyclonedds
 ROS_DOMAIN_ID=42
+ARM_MODEL=piper_x
 SIM_WORLD=curtmini_piper_map
 SIM_USE_HOKUYO=true
 SIM_USE_CAMERAS=true
 COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
 ```
 
-| Variable | What it does | Values |
-| --- | --- | --- |
-| `CONTAINER_ROS_DISTRO` | Selects the container [ROS 2 distribution](https://docs.ros.org/en/jazzy/Releases/Release-Jazzy-Jalisco.html). | `jazzy` (the only supported value) |
-| `RMW` | Selects the [ROS middleware](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Different-Middleware-Vendors.html). | `cyclonedds` or `zenoh` (only cyclonedds is tested at least until beginning of december) |
-| `ROS_DOMAIN_ID` | Groups ROS nodes that can discover each other; see [ROS domains](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Domain-ID.html). | `42` here; 0–101 is recommended on Linux |
-| `SIM_WORLD` | Selects the Gazebo world. | `curtmini_piper`, `curtmini_piper_map`, another packaged world, or an SDF path inside the container |
-| `SIM_USE_HOKUYO` | Enables the simulated lidar. | `true` or `false` |
-| `SIM_USE_CAMERAS` | Enables the simulated cameras and their IMUs. | `true` or `false` |
-| `COMPOSE_FILE` | Lists [Compose files](https://docs.docker.com/compose/how-tos/environment-variables/envvars/#compose_file) to combine. | Colon-separated files; see the workflows below |
+The office world is used for the mapping walkthrough. The supplied template selects `curtmini_piper`, the simpler ground-plane world.
+Run Compose commands from this directory; it reads `.env` automatically. You do not need `source .env` or repeated exports.
 
+For other settings and conflicting shell exports, see [environment settings](../../explanation/compose_project/environment.md).
 
-#### About gz worlds and SIM_WORLD env variable
-For `SIM_WORLD`, browse the [simulator worlds](https://github.com/ipa-may/curtmini_piper_gz_sim/tree/main/worlds)
-and [Neo worlds](https://github.com/ipa-may/neo_gz_worlds/tree/gz-harmonic/worlds).
+## Access for tools image builds
 
-To add an environment, create an [SDF world](https://gazebosim.org/docs/harmonic/sdf_worlds/)
-in the simulator's `worlds/` directory, publish it for regular image builds,
-rebuild the image, and set `SIM_WORLD` to its filename without `.sdf`.
+The tools repository is private. Your SSH agent must have a key with access to it when building the MoveIt, Nav2-client and tag-pose tool images.
+Alternatively, set this in `.env`, using your key's absolute path:
 
-The office world above is useful for navigation; the template initially selects
-the simpler `curtmini_piper` world. To make a useful map, change the **actual**
-`.env` file to `SIM_WORLD=curtmini_piper_map`, or use the explicit world override
-in the [navigation guide](../../startup/navigation.md#2-make-a-map).
-
-#### About COMPOSE_FILE env variable
-`COMPOSE_FILE` lists the files to combine, in order, separated by colons on Linux. Choose one active `COMPOSE_FILE` line:
-
-| Workflow | Value of `COMPOSE_FILE` in `.env` |
-| --- | --- |
-| Regular simulation, Nav2, or hardware, with GUI | `compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml` |
-| Optional local simulation workspace, with GUI | `compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml` |
-
-For regular images, use `--build` with the services you want to start. 
-
-For unpublished changes, see [which source workflow to use](#choose-a-source-workflow).
-
-:::{attention}
-Changing `.env` changes future Compose commands; it does not restart already running services.
-:::
-
-With the regular-image setting, for example, hardware startup becomes:
-
-```sh
-xhost +si:localuser:root
-docker compose up --build piper-bringup moveit-rviz-hardware
+```ini
+CURTMINI_PIPER_TOOLS_SSH_AUTH=default=/absolute/path/to/private_key
 ```
 
-It is much simpler to type in than passing all compose overlays.
+See [Git SSH setup](../../helpers/Tools/git.md#connect-to-github-with-ssh) and [image source details](../../explanation/compose_project/image_builds.md#upstream-code-and-local-settings).
 
-### On GUI access
+## Start a task
 
-The `xhost` command is needed once per desktop session for GUI access:
-```sh
-xhost +si:localuser:root
-```
-
-
-`compose.gui.yaml` passes the display and graphics devices to the containers; omitting it can cause RViz to exit with a Qt `xcb` error. (That was the issue on 2.10.26 since it wasnt specified in the documentation).
-
-
-### Temporary overrides and precedence
-
-Shell variables override matching `.env` values. If an earlier terminal setup
-exported these settings, clear those exports to use `.env` again:
-
-```sh
-unset CONTAINER_ROS_DISTRO RMW ROS_DOMAIN_ID SIM_WORLD SIM_USE_HOKUYO SIM_USE_CAMERAS COMPOSE_FILE
-```
-
-To change a setting for one command, put it before the command:
-
-```sh
-SIM_WORLD=curtmini_piper docker compose up gz-sim
-```
-
-Explicit `-f` options override the file list in `COMPOSE_FILE`; they do not add
-to it. For example, this command explicitly selects the regular GUI setup:
-
-```sh
-docker compose -f compose.yaml -f compose.cyclonedds.yaml -f compose.gui.yaml \
-  up --build gz-sim moveit-rviz-sim
-```
-
-See Docker's [`.env` explanation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/)
-and [COMPOSE_FILE reference](https://docs.docker.com/compose/how-tos/environment-variables/envvars/#compose_file).
-
-## What the Compose files do
-
-These files are in `curtmini_piper_containers/`:
-
-| File | Purpose |
-| --- | --- |
-| `compose.yaml` | Includes the robot, simulator and tools service definitions: their images, commands and default settings. |
-| `compose.cyclonedds.yaml` | Adds CycloneDDS communication settings to the named application services. |
-| `compose.zenoh.yaml` | Alternative communication setup using Zenoh; also defines `zenoh-router`. |
-| `compose.workspace.yaml` | Adds `workspace-builder` and makes simulation clients use its shared installation. |
-| `compose.gui.yaml` | Includes display and graphics settings for Gazebo and RViz. |
-
-An overlay is simply a Compose file that adds to or changes the selected configuration.
-
-The project GUI file includes `curtmini_piper/compose.gui.yaml`, which collects
-the MoveIt and navigation packages' GUI settings, plus the simulator's GUI file.
-Keep the project GUI overlay selected when opening Gazebo or RViz. These files
-provide display access; they do not start additional services on their own.
-
-Choose services by name, such as `docker compose up gz-sim moveit-rviz-sim`.
-
-Including a file does not start every service listed in it. See
-[Which service should I use?](../../startup/services.md) for their roles.
-
-## Where the Docker files live
-
-There are three layers:
-
-1. **ROS Packages:** its Dockerfile describes how to build an image; its Compose file
-   defines services that use it.
-2. **Robot repository:** `curtmini_piper/compose.yaml` includes the package service
-   definitions. Its `compose.gui.yaml` collects their optional display settings.
-3. **Project infrastructure:** `curtmini_piper_containers` combines robot,
-   simulator, and tools services with the chosen communication and GUI settings.
-
-| Location | Maintains |
-| --- | --- |
-| `curtmini_piper/` | Root `compose.yaml` and `compose.gui.yaml` include the package definitions; `compose.test.yaml` selects optional build checks |
-| `curtmini_piper/<package>/docker/` | Each robot package's Dockerfile, dependency lists, and Compose services |
-| `curtmini_piper/docker/common/` | Shared ROS base image and its build-only service |
-| `curtmini_piper/docker/dependencies/` | Shared arm and mobile-base source manifests |
-| `curtmini_piper_tools/` | Root Compose include; each tools package has its own `docker/Dockerfile`, `docker/compose.yaml`, and ROS package list |
-| `curtmini_piper_gz_sim/docker/` | Gazebo Dockerfile, package lists, simulation service, and GUI settings |
-| `curtmini_piper_containers/` | Compose includes, middleware configuration, shared startup helpers, workspace builder, and Zenoh router |
-
-The robot images share a ROS base. Compose builds shared layers through the
-`piper-ros-base`, `piper-description`, and `piper-moveit-config` services. They
-have `scale: 0`: they supply images but do not run containers during normal
-startup. You do not need to start them manually.
-
-The MoveItPy and C++ MoveIt client
-images build on the robot's MoveIt RViz image; the Nav2 client and tag pose
-images use a ROS base.
-Compose selects the services; the existing
-`moveitpy-sim` and `moveitpy-hardware` service names and `moveit_goal` command
-remain the same.
-Build `moveit-rviz-sim` before the MoveIt client images; `scripts/build-all.sh` does this
-automatically.
-
-For package ownership and build details, see the robot repository's
-[container guide](https://github.com/ipa-may/curtmini_piper/blob/main/doc/containers.md)
-(also available locally at `curtmini_piper/doc/containers.md`).
-
-Compose supplies the default checkout paths. Override them in `.env` only for
-a different layout:
-
-```sh
-CURTMINI_PIPER_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper
-CURTMINI_PIPER_TOOLS_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_tools
-CURTMINI_PIPER_GZ_SIM_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_simulation/curtmini_piper_gz_sim
-NEO_GZ_WORLDS_SOURCE=../rob4_fraunhofer_ws/src/curtmini_piper_simulation/neo_gz_worlds
-```
-
-The robot, simulator and tools checkouts are required to load their included Compose
-files. If the infrastructure checkout is elsewhere, set `CONTAINER_INFRA_SOURCE`
-to its absolute path so application builds can find the shared scripts.
-
-`CURTMINI_PIPER_SOURCE` selects the local robot checkout for Compose definitions
-and runtime mounts. It does **not** select the source compiled into regular
-robot images; that is controlled by `CURTMINI_PIPER_IMAGE_SOURCE` below.
-
-## Upstream code and local settings
-
-By default, regular application image builds fetch their owning repository from
-upstream `main` (the published branch on GitHub). The four tools images use the
-published `curtmini_piper_tools/main` source. Robot image builds can instead use
-a local checkout; see [local robot images](#build-local-robot-images). Use the
-workspace overlay for unpublished tools changes. Robot and simulator `vcs import`
-steps still clone dependencies from GitHub using their manifests. Hardware's
-Python SDK revision is in the robot repository's
-`curtmini_piper_bringup/docker/dependencies/jazzy-hardware-python.env`.
-
-The tools repository is private. Give the Docker builder an SSH key with access
-to it before building regular `moveitpy-sim`, `moveit-action-client-sim`,
-`nav2-goal-client`, or `tag-pose-sim` images. Compose uses
-the SSH agent by default. If your SSH configuration selects a specific key for
-a GitHub host alias, set
-`CURTMINI_PIPER_TOOLS_SSH_AUTH=default=/absolute/path/to/private_key` in
-`curtmini_piper_containers/.env`. The repository needs a published `main` branch
-before these regular images can build.
-
-Compose still loads service definitions from the local robot, simulator and tools
-checkouts. Local edits to root or package Compose files can therefore change
-commands, mounts, and build settings even for regular images. The local
-`geometry.yaml`, `camera_mounts.yaml`, `initial_state.yaml`, and navigation maps
-also remain runtime inputs. Review those files when checking a student's setup.
-
-For example, the Gazebo image builds upstream `curtmini_piper_gz_sim` code and
-imports `curtmini_piper`, `curt_mini`, `agx_arm_urdf`, and `neo_gz_worlds` from
-its manifest. `neo_gz_worlds` uses the `gz-harmonic` branch for the office
-assets. The project-level
-`project-docs/dependencies.repos` creates the host workspace layout.
-
-### Robot geometry in the simulator image
-
-The Gazebo build gets the robot description and MoveIt configuration from
-upstream `curtmini_piper/main`. The description reads
-`curtmini_piper_description/config/geometry.yaml`, whose local directory is
-bind-mounted into the containers. Restart the simulation and its clients after
-changing mount values in that YAML; no image rebuild is needed for those values.
-The simulator also publishes the camera mount TFs from the same geometry file.
-Physical camera mount TFs use the separate, measured
-`curtmini_piper_sensors/config/camera_mounts.yaml`.
-See [Cameras](../../startup/cameras.md) for the two setups.
-
-Changes to URDF, launch, bridge, or controller code require updating upstream
-`main` and rebuilding the regular image. The local workspace workflow can test
-those changes before they are published.
-
-The simulation's starting base pose and six arm joint positions are configured
-in `curtmini_piper_gz_sim/config/initial_state.yaml`. The `gz-sim` service
-bind-mounts that file, so a service restart applies pose edits without
-rebuilding the image. Bridge and controller YAML files use the upstream image
-copies. See the [simulation guide](../../startup/simulation.md#starting-pose-and-joint-positions).
-
-Rebuild an application image after upstream code changes. `--build` may reuse
-cached Git imports even when a remote branch advances. To fetch the latest
-simulator commit after pushing it to `main`, run:
-
-```sh
-docker compose build --no-cache gz-sim
-```
-
-For published navigation package changes, use `mapping-sim` in place of
-`gz-sim`; the navigation services share its image. Then recreate the affected
-services with the commands in the [simulation guide](../../startup/simulation.md)
-or [navigation guide](../../startup/navigation.md).
-
-## Choose a source workflow
-
-Start with the first row unless you are changing source code:
-
-| Your task | Workflow | Source used |
-| --- | --- | --- |
-| Run the published project | Regular images, without `compose.workspace.yaml` | GitHub `main` by default |
-| Test changes in robot packages, including hardware bringup | [Build local robot images](#build-local-robot-images), without `compose.workspace.yaml` | Local `curtmini_piper` checkout; dependencies still come from their manifests |
-| Develop simulation or tools alongside robot packages | [Local workspace](#local-workspace-development), with `compose.workspace.yaml` | Mounted local sources compiled into a shared install volume; hardware services keep their own images |
-
-### Build local robot images
-
-Use this when you have edited a robot package but have not pushed the changes
-to GitHub. Keep the regular-image `COMPOSE_FILE` selection in `.env` (without
-`compose.workspace.yaml`). From the infrastructure directory:
-
-```sh
-cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-CURTMINI_PIPER_IMAGE_SOURCE="$(realpath ../rob4_fraunhofer_ws/src/curtmini_piper)" \
-  docker compose build piper-bringup moveit-rviz-hardware
-```
-
-This example builds the arm and RViz images; it does **not** start the robot.
-Replace the service names with the ones you need, such as `mapping-sim` for
-navigation. The override uses an absolute path so package Compose files all
-find the same source directory. Compose builds the required shared robot
-images automatically.
-
-The override affects robot image builds only. It does not switch the Gazebo or
-tools images to local source. In particular, use the workspace workflow to test
-local robot description changes inside Gazebo.
-
-The variable above applies to that one command. After following the relevant
-startup guide, start the built services with `docker compose up SERVICE`
-without `--build`; another build without the override uses published source
-again. Local builds use the same image tags as regular builds. To return to
-published robot images, rebuild the affected services without the override.
-
-For repeated local builds, you can instead set `CURTMINI_PIPER_IMAGE_SOURCE`
-to the absolute checkout path in `curtmini_piper_containers/.env`. Remove that
-setting and any shell export (`unset CURTMINI_PIPER_IMAGE_SOURCE`) when returning
-to published source.
-
-Keep the robot and infrastructure checkouts compatible. If the package Docker
-layout has not yet been published on upstream `main`, use this local override
-until it is published; the default remote build cannot find unpublished files.
-
-## Local workspace development
-
-Use `compose.workspace.yaml` to test unpublished edits in local simulator,
-navigation, or tools sources. The builder compiles these packages into
-a shared Docker install volume; hardware services keep using their own images.
-
-In `curtmini_piper_containers/.env`, use the local-workspace file selection:
-
-```sh
-COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.workspace.yaml:compose.gui.yaml
-```
-
-Build the development image and mounted sources before starting the affected
-simulation services:
-
-```sh
-cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-docker compose build workspace-builder
-docker compose run --rm workspace-builder
-```
-
-Then start the services from the relevant startup guide. After further source
-edits, stop those services, rerun `workspace-builder`, and restart them. To
-return to regular images, remove `compose.workspace.yaml` from `COMPOSE_FILE`
-and start the services with `--build`. The container repository's
-[workspace guide](https://github.com/ipa-may/curtmini_piper_containers/blob/main/README.md#local-simulation-workspace)
-has the details about mounts and cached dependencies.
-
-## Optional developer checks
-
-Normal startup does not need `curtmini_piper/compose.test.yaml`. This optional
-overlay selects Dockerfile stages that run checks while building separate test
-images. It checks Xacro expansion, MoveIt launch-argument parsing, teleop package
-availability, and any registered package tests. Coverage depends on the tests
-each package provides; a successful build is not proof of correct robot behavior.
-
-These build checks do not start hardware services or verify CAN communication,
-firmware, or physical motion. Do not add the test overlay to the normal project
-`COMPOSE_FILE`. Test build commands and infrastructure configuration checks are
-in the robot repository's
-[container checks guide](https://github.com/ipa-may/curtmini_piper/blob/main/doc/containers.md#checks).
+Continue to [Startup and walkthrough](../../startup/index.md). Each task supplies its build/start commands and any GUI preparation.
+For unpublished local code, use [development workflows](../../startup/development.md).

@@ -1,6 +1,6 @@
-# Student helpers
+# Helpers
 
-Guidance for students setting up their development environment and learning
+General guidance for setting up a development environment and learning
 the ROS 2 workspace and tools used in this project.
 
 ```{toctree}

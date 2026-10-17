@@ -1,41 +1,37 @@
 # Standalone RViz
 
-RViz is a client. Start simulation or hardware bringup first; the backend provides
-MoveIt, joint states, transforms, and the planning scene. The
-[simulation quick start](simulation.md) already starts RViz.
+Start [simulation](simulation.md) or [hardware bringup](real_hardware.md) first. Skip this page if the required RViz window is already running.
 
-## Docker
-
-Use the same `curtmini_piper_containers/.env` as the backend; see
-[configure once with `.env`](../installation/software/docker.md#configure-once-with-env).
-Keep `compose.gui.yaml` in `COMPOSE_FILE` so RViz can open on the desktop.
-Compose reads the file for every command, so no per-terminal exports are needed.
+Complete [Docker installation](../installation/software/docker.md) first.
+In each terminal, run commands from:
 
 ```sh
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
+```
+
+## Docker
+
+Keep `compose.gui.yaml` in `.env`'s `COMPOSE_FILE` and use the backend's ROS domain and middleware:
+
+```sh
 xhost +si:localuser:root
 docker compose run --rm --build moveit-rviz-sim
 ```
 
-Use `moveit-rviz-hardware` for an active real robot. Match the backend's distro,
-middleware, ROS domain, and mount/TCP settings. This service displays MoveIt;
-use `nav2-rviz-sim` for the [navigation view](navigation.md).
-The MoveIt RViz configuration includes both camera bodies, TF, and color and
-depth image displays. Follow the [camera guide](cameras.md) to start the
-simulated or physical image publishers before opening those displays.
-See the [service guide](services.md) for the available clients.
+For the real robot, use `moveit-rviz-hardware`. For mapping or navigation, use `nav2-rviz-sim`.
+The MoveIt view should display the robot and planning panel. Start [cameras](cameras.md) to populate its image displays.
 
-## Native source workspace
+## Native source alternative
 
-After sourcing the installed workspace, run:
+After sourcing the installed workspace:
 
 ```sh
 ros2 launch curtmini_piper_moveit_config moveit_rviz.launch.py use_sim_time:=true
 ```
 
-Use `use_sim_time:=false` for real hardware.
+Use `use_sim_time:=false` for real hardware. If the simulated lidar is disabled, also pass `use_hokuyo:=false` to match its model.
 
-Simulation containers pass `SIM_USE_HOKUYO` to the client robot model. For a
-native launch, set `use_hokuyo:=false` (RViz launch argument) or
-`-p use_hokuyo:=false` (MoveItPy parameter) when the simulator lidar is disabled.
-The native defaults include the lidar for simulation and omit it for hardware.
+## Stop
+
+Close RViz or press Ctrl+C in its terminal. The backend remains running.
+See [Compose services](../explanation/compose_project/compose_services.md) for the roles of RViz and the backend.

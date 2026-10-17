@@ -11,9 +11,8 @@ with an AgileX Piper arm.
 :maxdepth: 3
 :caption: Contents
 
-overview
 installation/index
 startup/index
-troubleshooting
-student_helpers/index
+explanation/index
+helpers/index
 ```

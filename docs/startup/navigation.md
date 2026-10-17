@@ -1,124 +1,26 @@
-# Navigation in simulation
+# Navigation on a saved map
 
-`curtmini_piper_navigation` configures **Nav2 for Gazebo simulation**. Nav2 plans a path and
-drives the mobile base to a goal position and orientation. SLAM Toolbox builds
-the map; AMCL estimates the robot's position on a saved map.
+Complete [Docker installation](../installation/software/docker.md) first.
+In each terminal, run commands from:
 
-The package belongs in `curtmini_piper` because its frames, controller topics,
-lidar and footprint are specific to this robot. Nav2 and SLAM Toolbox are
-installed from ROS packages. They do not need separate source repositories.
-Future docking, task sequencing or custom planner packages can be added when
-needed; the initial setup does not need them.
-
-## Files
-
-| File | Purpose |
-| --- | --- |
-| `config/slam.yaml` | Lidar, frames and map-building settings |
-| `config/nav2.yaml` | Localization, path planning, obstacle avoidance and speed limits |
-| `launch/mapping.launch.py` | Starts SLAM Toolbox |
-| `launch/navigation.launch.py` | Starts the map server, AMCL and Nav2 servers |
-| `launch/rviz.launch.py` | Opens the navigation view |
-| `rviz/navigation.rviz` | Map, scan, footprint, path and goal tools |
-| `maps/` | Maps saved on the host; generated files are ignored by Git |
-
-## 1. Build
-
-Create `curtmini_piper_containers/.env` using the
-[Docker setup](../installation/software/docker.md#configure-once-with-env).
-Edit these values in the **actual `.env` file** for mapping.
-The copied `.env.example` has `SIM_WORLD=curtmini_piper`, which is a mostly empty
-ground-plane world. Mapping needs the office world `curtmini_piper_map`:
-
-```ini
-CONTAINER_ROS_DISTRO=jazzy
-RMW=cyclonedds
-ROS_DOMAIN_ID=42
-SIM_WORLD=curtmini_piper_map
-SIM_USE_HOKUYO=true
-COMPOSE_FILE=compose.yaml:compose.cyclonedds.yaml:compose.gui.yaml
-```
-
-Compose reads `.env` automatically; you do not need exports or `-f` options
-in each terminal. The regular images include navigation, simulation and MoveIt.
-See the [service guide](services.md) for the role of each container.
-
-Run the following from the container repository. Use this directory in every
-terminal for the rest of the guide:
-
-```bash
-cd ~/ROB4_Fraunhofer/curtmini_piper_containers
-xhost +si:localuser:root
-```
-
-The first mapping command below builds the application images. After publishing
-navigation code or configuration changes to upstream `main`, refresh the
-navigation image as described in the
-[Docker guide](../installation/software/docker.md#upstream-code-and-local-settings).
-
-## 2. Make a map
-
-Start Gazebo in the office world, SLAM Toolbox and the navigation view. The
-`SIM_WORLD` prefix selects the office world even if `.env` still has the simple
-world. `--force-recreate` replaces an already running Gazebo container that
-may have loaded that simple world:
-
-```bash
-SIM_WORLD=curtmini_piper_map docker compose up --build -d --force-recreate \
-  gz-sim mapping-sim nav2-rviz-sim
-docker compose logs -f mapping-sim
-```
-
-Stop following the logs with Ctrl+C. This leaves the services running.
-Gazebo should show office walls and furniture. The occupancy map in RViz starts
-blank and fills in as you drive and SLAM receives lidar scans. If Gazebo itself
-still shows only a ground plane, check that the new `gz-sim` container started
-with the office world before continuing.
-In RViz, the laser points should follow walls and furniture. If most points
-land on the robot itself, correct the lidar mounting before mapping. Its
-position is in `curtmini_piper_description/config/geometry.yaml`.
-Changing only the lidar mount pose normally requires a TF/geometry update, not
-new Nav2 parameters, while `/scan` and `hokuyo_link` keep their names. Check
-an existing map again if the new height or tilt changes what the scan sees.
-
-Drive slowly around the area with keyboard teleoperation:
-
-```bash
-docker compose run --rm --build keyboard-teleop-sim
-```
-
-Keep the arm in the simulator's initial pose. Visit the space where you want
-to navigate, then stop teleoperation with Ctrl+C. Save the map from another
-terminal:
-
-```bash
-docker compose exec mapping-sim /opt/container/ros_entrypoint.sh \
-  ros2 run nav2_map_server map_saver_cli -f /maps/map \
-  --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0
-```
-
-This creates `map.yaml` and `map.pgm` in `rob4_fraunhofer_ws/src/curtmini_piper/curtmini_piper_navigation/maps/` on
-your host. `/maps` inside the container is a bind mount of that directory.
-The files may be owned by root because the containers run as root.
-The YAML records the image filename, map resolution and map origin. Keep both
-files together.
-
-It utilizes the nav2 map server:
 ```sh
-ros2 run nav2_map_server map_saver_cli -f /pathto/<map-name>
+cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 ```
 
-You can therefore decide the map name you want to save.
+First [save a map](mapping.md). Keep Gazebo running in the same world.
+If restarting a session, use the same `SIM_WORLD` in `.env` as when mapping, then start [simulation](simulation.md).
+Exit the interactive teleoperation terminal with `k`, then Ctrl+C before letting Nav2 drive. Stopping a Compose service does not replace exiting a one-off `run` session.
 
-## 3. Navigate on the saved map
+## Start localization and navigation
 
-Leave Gazebo running. Stop mapping before starting AMCL:
-
-```bash
-docker compose stop mapping-sim
-docker compose up -d nav2-sim nav2-rviz-sim
-docker compose logs -f nav2-sim
+```sh
+docker compose stop mapping-sim nav2-rviz-sim
+docker compose up --build -d nav2-sim nav2-rviz-sim
 ```
+
+This loads `NAV2_MAP` from `.env` (`map.yaml` by default).
+
+## Set the pose and send a goal
 
 In RViz:
 
@@ -131,83 +33,45 @@ In RViz:
 4. Use **Cancel** in the Navigation 2 panel to cancel a goal.
 
 Do not run keyboard teleoperation while Nav2 is driving: both publish to the
-same controller. Mapping and AMCL also must not run together: each publishes
-`map → odom`.
+same controller.
 
-You can also send a goal through the ROS action interface:
+Run mapping and AMCL separately; see [TF ownership](../explanation/navigation.md#how-the-pieces-connect).
 
-```bash
-docker compose exec nav2-sim /opt/container/ros_entrypoint.sh \
-  ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-  '{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}}}' \
-  --feedback
+```{figure} ../_static/nav2/nav2-sim_01.png
+:alt: Gazebo simulation on the left and the RViz navigation view on the right
+:width: 100%
+
+`gz-sim` (left) and `nav2-rviz-sim` (right) while `nav2-sim` is running.
 ```
 
-Those coordinates are an example, not a known free point in your map. Choose
-coordinates from RViz. The orientation is a quaternion; `w: 1.0` means yaw zero.
-Closing the CLI is not a reliable way to cancel an accepted goal. RViz's
-Cancel button is for goals sent from RViz. To cancel the active navigation
-goal from a terminal:
+For scripted goals, use the [Python walkthrough](nav2_python.md).
 
-```bash
-docker compose exec nav2-sim /opt/container/ros_entrypoint.sh \
-  ros2 service call /navigate_to_pose/_action/cancel_goal \
-  action_msgs/srv/CancelGoal '{}'
+
+Change the Nav2 settings from the nav2.yaml file, for example widening the local costmap from 4x4 meters to 12x12 meters :
+
+```{figure} ../_static/nav2/nav2-sim_extend_forward_prune_distance.png
+:alt: Gazebo simulation on the left and the RViz navigation view on the right
+:width: 100%
+
+`gz-sim` (left) and `nav2-rviz-sim` (right) while `nav2-sim` is running, 12x12m local costmap.
 ```
 
-The empty request asks Nav2 to cancel all current NavigateToPose goals.
+## Choose another map
 
-To load another map saved in `maps/`:
+For `maps/office.yaml`:
 
-```bash
+```sh
 NAV2_MAP=office.yaml docker compose up -d nav2-sim
 ```
 
-To finish:
+Set the initial pose again in RViz after changing maps.
 
-```bash
-docker compose stop nav2-sim mapping-sim nav2-rviz-sim gz-sim
+## Stop
+
+Cancel the active goal in the client that sent it, then stop navigation:
+
+```sh
+docker compose stop nav2-sim nav2-rviz-sim gz-sim
 ```
 
-## How the pieces connect
-
-| Interface | Used for |
-| --- | --- |
-| `/scan` (`sensor_msgs/msg/LaserScan`) | Mapping, localization and obstacle detection |
-| `/base_controller/odom` | Wheel odometry for navigation |
-| `/base_controller/cmd_vel` (`geometry_msgs/msg/TwistStamped`) | Base velocity commands |
-| `/clock` | Simulation time for every navigation node |
-| `/navigate_to_pose` | Goal action, including feedback and cancellation |
-| `map → odom` | Published by SLAM while mapping, or AMCL while navigating |
-| `odom → base_link` | Published by the simulated base controller |
-| `base_link → … → hokuyo_link` | Published from the robot description |
-
-NavFn plans the global path. DWB chooses local velocities while checking the
-robot footprint against obstacles. The controller and recovery behaviors send
-stamped commands directly to the base controller. The initial limits are
-0.25 m/s forward and 0.5 rad/s turning.
-
-The footprint is a fixed 1.0 × 0.7 m rectangle, plus 3 cm padding. It assumes
-the stationary initial arm pose. Moving the arm does not automatically update
-the footprint; an extended arm or changed attachments require a new footprint.
-This is a 2D lidar setup and does not provide full 3D arm clearance checking.
-
-## Troubleshooting
-
-- **Gazebo shows only a ground plane:** `curtmini_piper` is the simple world.
-  Set `SIM_WORLD=curtmini_piper_map` in the actual `.env` file, then rerun the
-  mapping startup command above. The one-command prefix also selects it.
-- **Map does not exist:** save a map first and check `maps/map.yaml`, or set
-  `NAV2_MAP` to the saved YAML filename.
-- **RViz has no `map` frame during localization:** provide a 2D Pose Estimate.
-- **Scan does not line up:** check the initial pose, lidar geometry and TF.
-- **Robot does not move:** inspect `docker compose logs nav2-sim`, check Nav2
-  is active, and select a goal in mapped free space with room for the footprint.
-- **Transform or time errors:** keep the same ROS domain and middleware in
-  all terminals; all navigation nodes must use the simulator clock.
-
-The mapping and navigation services share the same `navigation` image, so the
-mapping build also supplies `nav2-sim` later in this guide.
-
-References: [Nav2 setup guide](https://docs.nav2.org/setup_guides/index.html)
-and [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox).
+See [Nav2 configuration](../explanation/navigation.md) for topics, transforms and footprint assumptions, or [troubleshooting](troubleshooting.md#mapping-and-navigation) if localization or motion fails.
