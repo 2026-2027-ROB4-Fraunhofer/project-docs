@@ -9,6 +9,7 @@ Run Compose commands from `~/ROB4_Fraunhofer/curtmini_piper_containers` using it
 
 simulation/index
 hardware/index
+remote-development/index
 development
 troubleshooting
 ```

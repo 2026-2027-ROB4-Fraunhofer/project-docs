@@ -9,7 +9,9 @@ In each terminal, run commands from:
 cd ~/ROB4_Fraunhofer/curtmini_piper_containers
 ```
 
-## Prepare CAN and GUI access
+## Start the arm
+
+### Prepare CAN and GUI access
 
 On the hardware host, activate the arm's CAN interface (replace `can0` if your configuration uses another interface):
 
@@ -21,13 +23,15 @@ xhost +si:localuser:root
 
 Confirm the interface is up. Check that the base's configured IMU and joystick devices exist before starting `base-bringup`; see [hardware settings](../../explanation/compose_project/environment.md#hardware-settings).
 
-## Start the arm
+### Run the arm bringup container and rviz
 
 ```sh
 docker compose up --build piper-bringup moveit-rviz-hardware
 ```
 
 RViz should show the combined robot and MoveIt panel. Check startup logs for CAN or driver errors before sending a motion request.
+Use the [diagnostic shell](../remote-development/diagnostics.md) to inspect
+controllers, joint feedback and TF, or save plots and RViz configurations.
 
 ## Start arm and base together
 

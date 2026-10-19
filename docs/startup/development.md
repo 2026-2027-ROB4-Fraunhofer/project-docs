@@ -1,5 +1,8 @@
 # Development workflows
 
+For inspecting running nodes, controllers, TF and sensor data, see
+[Diagnosing the running system](remote-development/diagnostics.md).
+
 Complete [Docker installation](../installation/software/docker.md) first. In each terminal:
 
 ```sh

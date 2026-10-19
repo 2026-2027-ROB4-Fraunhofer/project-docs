@@ -1,5 +1,8 @@
 # Troubleshooting
 
+Use the [diagnostic shell](remote-development/diagnostics.md) for controller
+queries, TF PDFs, RViz, PlotJuggler and persistent recordings.
+
 ## Missing Curt Mini dependencies
 
 Confirm that the hardware dependencies were imported:
@@ -50,6 +53,8 @@ All three controllers should be active. If `joint_state_broadcaster` is inactive
 ## GUI or environment settings
 
 If RViz reports a Qt `xcb` error, check that `compose.gui.yaml` is selected and run `xhost +si:localuser:root` in the desktop session.
+For `ros-cli`, authorize the configured diagnostic user instead; see
+[GUI setup](remote-development/diagnostics.md#open-rviz-and-plotjuggler).
 If `.env` changes appear ignored, check [shell precedence](../explanation/compose_project/environment.md#temporary-overrides-and-precedence), then recreate affected services. Editing `.env` alone does not restart them.
 
 For service inspection and logs, see [Docker usage](../helpers/Tools/docker_usage.md).
