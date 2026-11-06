@@ -20,6 +20,19 @@ docker compose up --build gz-sim moveit-rviz-sim
 Gazebo should show the robot and RViz should show its model and MoveIt panel.
 The world comes from `.env`; [mapping](navigation/mapping.md) explicitly selects the office world.
 
+### Run Gazebo without its window (optional)
+
+Gazebo opens its window by default (`HEADLESS=false`). To run only the simulation
+server, for example to save GPU resources when RViz is enough, set `HEADLESS=true`
+in `.env` or in front of the command:
+
+```sh
+HEADLESS=true docker compose up --build gz-sim moveit-rviz-sim
+```
+
+RViz still opens, and the simulation, sensors and controllers run as usual.
+Remove the setting or set `HEADLESS=false` to bring the Gazebo window back.
+
 Optionally check the renderer in a second terminal; with NVIDIA selected, it should name your NVIDIA GPU:
 
 ```sh
